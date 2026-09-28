@@ -2,6 +2,22 @@
 
 A historical Formula 1 analysis tool for studying overtakes created through late braking.
 
+Out Brake, Overtake is an independent community project and is not affiliated
+with or endorsed by Formula 1, the FIA, any team, driver, or OpenF1. Formula 1,
+FIA, team, and driver names and marks belong to their respective owners.
+
+## Project status
+
+- The Predictive Model UI now evaluates the exported Max Verstappen baseline
+  logistic-regression artifact in the browser; it is no longer a placeholder
+  formula.
+- The production direction is an all-driver pooled model. The Max-only artifact
+  remains an exploratory baseline until the pooled model is trained and exported.
+- The UI includes Home, Predictive Model, Overtakes, and About Our Model tabs.
+- This repository is initialized on `main`. The application source and local
+  training data will be migrated deliberately; raw data and local model binaries
+  are not intended for publication.
+
 ## Stack
 
 - React + TypeScript + Vite
@@ -36,9 +52,10 @@ PYTHONPATH=ml/src .venv/bin/python -m unittest discover -s ml/src
 ```
 
 `npm test` currently fails because web tests have not been added. Python
-dependency ranges are not yet an exact reproducible lockfile. The prediction
-page is a UI prototype with a placeholder formula, not the exported trained
-model. See [review findings](docs/CODE_REVIEW.md) before publishing.
+dependency ranges are not yet an exact reproducible lockfile. The current
+browser prediction uses the exported Max Verstappen baseline; it is not the
+future all-driver pooled model. See [review findings](docs/CODE_REVIEW.md)
+before publishing.
 
 ## Project structure
 
@@ -63,10 +80,10 @@ Original project code is [MIT licensed](LICENSE). See [third-party notices](THIR
 for OpenF1 attribution, upstream licensing, asset provenance, and data rights.
 This project is independent of Formula 1, the FIA, teams, drivers, and OpenF1.
 
-The workspace has not been initialized with Git. `.gitignore` excludes data,
-binary model artifacts, generated reports, local runtimes, dependencies, build
-outputs, and `.env` secrets; `.env.example` remains publishable. Browser model
-JSON exports are intentionally eligible for publication and need review.
-After initializing Git, inspect `git status --short` and `git diff --cached --stat`
-before committing. Ignore rules do not protect force-added or previously tracked
-files. Do not copy raw API records into public assets or committed examples.
+Git is initialized and `main` tracks the GitHub remote. `.gitignore` excludes
+data, binary model artifacts, generated reports, local runtimes, dependencies,
+build outputs, and `.env` secrets; `.env.example` remains publishable. Browser
+model JSON exports are intentionally eligible for publication and need review.
+Inspect `git status --short` and `git diff --cached --stat` before committing.
+Ignore rules do not protect force-added or previously tracked files. Do not copy
+raw API records into public assets or committed examples.
