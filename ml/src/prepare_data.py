@@ -14,10 +14,10 @@ import pyarrow.parquet as pq
 from schema import REQUIRED_COLUMNS
 
 
-# A negative example must look like an actual attack, not ordinary close following.
-FAILURE_MAX_GAP_SECONDS = 0.5
-FAILURE_MIN_SPEED_DELTA_KPH = 20
-FAILURE_MIN_CLOSING_RATE = 0.02
+# Both outcomes use the same attack signature: within one second, a positive
+# speed advantage, positive closing rate, matched braking, and the physical
+# later-braking requirement below.  A completed same-opponent pass supplies
+# the success label; an otherwise qualifying non-pass is a failure.
 MIN_LATER_BRAKING_METRES = 5.0
 MAX_BRAKING_SEPARATION_METRES = 100.0
 LOCATION_MARGIN_METRES = 4.0  # Combined heuristic margin; not calibrated GPS accuracy.
@@ -317,16 +317,6 @@ def build_session(session_dir, driver, reader=read_rows, context=None):
             ambiguous += 1
             continue
         brake_distance = evidence['distance_m']
-        # The Overtakes endpoint confirms successes. Unconfirmed events are
-        # failures only when they show a stronger attack signature; otherwise
-        # they are ambiguous close-following and must not train the model.
-        if (not success and (
-                gap > FAILURE_MAX_GAP_SECONDS
-                or speed_delta < FAILURE_MIN_SPEED_DELTA_KPH
-                or not (closing_rate >= FAILURE_MIN_CLOSING_RATE
-                        or (brake_distance is not None and brake_distance > 0)))):
-            ambiguous += 1
-            continue
         quality_flags = []
         if brake_distance is None:
             quality_flags.append('missing_brake_distance')

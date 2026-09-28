@@ -1,10 +1,10 @@
-import maxVerstappenModel from '../../../public/models/max-verstappen.json'
+import pooled2023DiagnosticModel from '../../../public/models/pooled-2023-diagnostic.json'
 
 export type ScenarioValues = Record<string, number | string | boolean | null>
 
-type BrowserModel = typeof maxVerstappenModel
+type BrowserModel = typeof pooled2023DiagnosticModel
 
-const model: BrowserModel = maxVerstappenModel
+const model: BrowserModel = pooled2023DiagnosticModel
 
 function categorySuffix(value: string | boolean | null) {
   if (value === null) return 'None'
@@ -32,4 +32,4 @@ export function predictOvertake(values: ScenarioValues) {
   return { probability, isLikely: probability >= model.decision_threshold }
 }
 
-export { model as maxVerstappenModel }
+export { model as pooled2023DiagnosticModel }

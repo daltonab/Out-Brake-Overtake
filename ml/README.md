@@ -68,3 +68,13 @@ PYTHONPATH=ml/src .venv/bin/python ml/src/export_model.py \
   --output public/models/pooled-out-braking.json \
   --model-name pooled-out-braking
 ```
+
+After every pooled rebuild, run the integrity and calibration assessment before
+using the model in the UI:
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python ml/src/assess_pooled_baseline.py \
+  --input data/processed/pooled/attempts.parquet \
+  --model ml/models/pooled-out-braking.joblib \
+  --output ml/reports/pooled-out-braking-assessment.json
+```

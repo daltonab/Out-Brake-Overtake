@@ -1,5 +1,5 @@
 """Tune, evaluate, and save the pooled out-braking logistic-regression model."""
-import argparse, json
+import argparse, hashlib, io, json
 from pathlib import Path
 import joblib
 import numpy as np
@@ -74,7 +74,9 @@ def main():
     parser.add_argument('--report-output', required=True, type=Path)
     parser.add_argument('--model-name', default='pooled-out-braking')
     args = parser.parse_args()
-    frame = pd.read_parquet(args.input)
+    input_bytes = args.input.read_bytes()
+    input_sha256 = hashlib.sha256(input_bytes).hexdigest()
+    frame = pd.read_parquet(io.BytesIO(input_bytes))
     validate_columns(frame.columns)
     # Lap-one candidates are retained for audit, but start-pack dynamics are
     # intentionally excluded until they have their own validated treatment.
@@ -103,7 +105,7 @@ def main():
     validation_probability = model.predict_proba(validation[list(FEATURES)])[:, 1]
     threshold = choose_threshold(validation[TARGET].to_numpy(), validation_probability)
     test_probability = model.predict_proba(test[list(FEATURES)])[:, 1]
-    report = {'model': 'class-balanced logistic regression',
+    report = {'model': 'class-balanced logistic regression', 'input_sha256': input_sha256,
               'model_scope': 'pooled', 'model_name': args.model_name,
               'features': {'numeric': list(MODEL_NUMERIC),
                            'categorical': list(MODEL_CATEGORICAL)},
@@ -114,7 +116,7 @@ def main():
               'split_counts': {name: {'rows': int(len(subset)),
                                       'successes': int(subset[TARGET].sum())}
                                for name, subset in subsets.items()}}
-    artifact = {'pipeline': model, 'threshold': threshold,
+    artifact = {'pipeline': model, 'threshold': threshold, 'input_sha256': input_sha256,
                 'model_scope': 'pooled', 'model_name': args.model_name,
                 'features': report['features'], 'report': report}
     args.model_output.parent.mkdir(parents=True, exist_ok=True)

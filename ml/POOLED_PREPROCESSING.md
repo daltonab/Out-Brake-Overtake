@@ -29,8 +29,9 @@ excluded. The shared implementation also emits `brake_distance_lower_bound_m`.
    onset detection, gap/speed/closing gates, 10-second same-opponent success
    labels, approximate braking-distance calculation, 100m separation limit,
    20-second attempt deduplication, and feature extraction remain shared.
-   The negative gate remains gap <=0.5s, speed advantage >=20km/h and either
-   closing rate >=0.02s/s or positive braking-distance delta. No minimum speed.
+   Unconfirmed events use the same gap <=1s, positive speed advantage and
+   positive closing-rate signature as confirmed passes; no failure-only speed
+   or gap threshold is applied.
    `prepare_data.prepare_session` reads and prepares driver timelines, brake
    onsets, and the session coordinate scale once. All drivers reuse this state;
    attempt rows and deduplication state remain separate per driver. Shared state

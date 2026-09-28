@@ -10,8 +10,8 @@ creates one model-ready row per confident overtaking attempt.
 All successes and failures must now pass the same physical distance gate:
 the attacker's braking point must be farther along the shared corner approach.
 Timestamp delay alone no longer qualifies. Existing timing (0–5 seconds),
-gap, closing-rate, and speed gates are retained; this change does not remove
-the previously documented negative-only 20 km/h selection asymmetry.
+gap, closing-rate, and positive-speed-advantage gates are retained and apply
+equally to both outcomes.
 
 - Interpolate location at the last brake-off and first brake-on samples for
   both drivers. No extrapolation; location brackets and off/on intervals must
@@ -68,13 +68,11 @@ training-ready; inspect retained and rejected examples before tuning thresholds.
    braking zones.
 5. Label success only when the Overtakes endpoint records the selected driver
    passing the same defender within ten seconds after braking onset.
-6. Treat an unconfirmed event as a failure only when the cars are within 0.5
-   seconds, the attacker has at least a 20 km/h speed advantage, and either the
-   gap is closing by at least 0.02 seconds per second or the attacker brakes
-   farther along the circuit than the defender. Events that miss this stricter
-   gate are ambiguous close-following and are excluded. This extra gate applies
-   only to failures; API-confirmed successes must still satisfy the shared
-   physical out-braking and quality requirements above.
+6. Treat an unconfirmed event as a failure when it passes the same attack
+   signature as a success: within one second, a positive speed advantage and
+   positive closing rate, matched braking, and the shared physical later-
+   braking and quality requirements. Events that miss this shared signature
+   are ambiguous close-following and are excluded.
 7. Detect throttle lift as the final sustained transition from at least 95%
    throttle to below 90% within eight seconds before braking. Store the
    attacker's lift time minus the defender's.
