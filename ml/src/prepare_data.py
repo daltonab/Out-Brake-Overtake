@@ -201,8 +201,11 @@ def lap_at(laps, at):
 def stint_at(stints, lap):
     if lap is None:
         return None
+    # OpenF1 occasionally emits incomplete stint metadata. Missing boundaries
+    # must not prevent otherwise valid telemetry rows from being processed.
     return next((row for row in stints
-                 if row.get('lap_start') <= lap <= (row.get('lap_end') or lap)), None)
+                 if row.get('lap_start') is not None
+                 and row['lap_start'] <= lap <= (row.get('lap_end') or lap)), None)
 
 
 def prepare_session(session_dir, reader=read_rows):
