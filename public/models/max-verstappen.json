@@ -1,0 +1,331 @@
+{
+  "format_version": 1,
+  "model_type": "logistic_regression",
+  "driver": "Max Verstappen",
+  "exported_at": "2026-09-27T03:12:28.613216+00:00",
+  "decision_threshold": 0.39499999999999996,
+  "numeric": {
+    "features": [
+      "gap_seconds",
+      "closing_rate_seconds_per_second",
+      "attacker_speed_kph",
+      "speed_delta_kph",
+      "brake_onset_delta_seconds",
+      "brake_distance_delta_m",
+      "throttle_lift_delta_seconds",
+      "attacker_tyre_age_laps",
+      "defender_tyre_age_laps",
+      "lap_fraction",
+      "rainfall",
+      "track_temperature_c"
+    ],
+    "impute_medians": [
+      0.338,
+      0.02720527484864942,
+      290.0,
+      32.0,
+      0.31999993324279785,
+      5.411290981070818,
+      0.24000000953674316,
+      7.0,
+      9.0,
+      0.22727272727272727,
+      0.0,
+      36.1
+    ],
+    "means": [
+      0.3114747474747475,
+      0.03221201296354632,
+      272.7171717171717,
+      34.82828282828283,
+      0.36845454061874233,
+      8.554216216001914,
+      0.515161617837771,
+      8.878787878787879,
+      13.333333333333334,
+      0.3920874818699986,
+      0.06060606060606061,
+      35.78080808080808
+    ],
+    "scales": [
+      0.13933988265268313,
+      0.024305344645559276,
+      52.95777628232225,
+      14.630838058834723,
+      0.37531902533811007,
+      22.225555172429846,
+      1.3060017321275754,
+      7.7931240442550385,
+      13.294640828073344,
+      0.32914565358486664,
+      0.2386062992124791,
+      9.1113391088855
+    ]
+  },
+  "categorical": {
+    "features": [
+      "attacker_compound",
+      "defender_compound",
+      "attacker_drs_active"
+    ],
+    "impute_values": [
+      "MEDIUM",
+      "MEDIUM",
+      false
+    ],
+    "categories": [
+      [
+        "HARD",
+        "INTERMEDIATE",
+        "MEDIUM",
+        "SOFT"
+      ],
+      [
+        "HARD",
+        "INTERMEDIATE",
+        "MEDIUM",
+        "SOFT",
+        null
+      ],
+      [
+        false
+      ]
+    ]
+  },
+  "encoded_feature_order": [
+    "numeric__gap_seconds",
+    "numeric__closing_rate_seconds_per_second",
+    "numeric__attacker_speed_kph",
+    "numeric__speed_delta_kph",
+    "numeric__brake_onset_delta_seconds",
+    "numeric__brake_distance_delta_m",
+    "numeric__throttle_lift_delta_seconds",
+    "numeric__attacker_tyre_age_laps",
+    "numeric__defender_tyre_age_laps",
+    "numeric__lap_fraction",
+    "numeric__rainfall",
+    "numeric__track_temperature_c",
+    "categorical__attacker_compound_HARD",
+    "categorical__attacker_compound_INTERMEDIATE",
+    "categorical__attacker_compound_MEDIUM",
+    "categorical__attacker_compound_SOFT",
+    "categorical__defender_compound_HARD",
+    "categorical__defender_compound_INTERMEDIATE",
+    "categorical__defender_compound_MEDIUM",
+    "categorical__defender_compound_SOFT",
+    "categorical__defender_compound_None",
+    "categorical__attacker_drs_active_False"
+  ],
+  "coefficients": [
+    -2.6391107612474696,
+    -0.5482771481115027,
+    0.6072881663287985,
+    0.7968537073957216,
+    -0.9698847592859569,
+    0.3927908195308438,
+    0.26898837367660716,
+    -0.1834837817751802,
+    0.5793063940880917,
+    -0.5251711323834607,
+    -1.1287132086231106,
+    -0.18194620663886138,
+    -0.69794411730973,
+    1.5300038409962042,
+    -1.1443530173363858,
+    0.3053923131491009,
+    -0.585940104188067,
+    1.5300038409962042,
+    0.3923546501817593,
+    -0.7509212774312417,
+    -0.5923980900594648,
+    -0.0069009805008093065
+  ],
+  "intercept": -0.7762616666220281,
+  "evaluation": {
+    "model": "class-balanced logistic regression",
+    "features": {
+      "numeric": [
+        "gap_seconds",
+        "closing_rate_seconds_per_second",
+        "attacker_speed_kph",
+        "speed_delta_kph",
+        "brake_onset_delta_seconds",
+        "brake_distance_delta_m",
+        "throttle_lift_delta_seconds",
+        "attacker_tyre_age_laps",
+        "defender_tyre_age_laps",
+        "lap_fraction",
+        "rainfall",
+        "track_temperature_c"
+      ],
+      "categorical": [
+        "attacker_compound",
+        "defender_compound",
+        "attacker_drs_active"
+      ]
+    },
+    "selected_regularization_c": 3.0,
+    "tuning": [
+      {
+        "c": 0.01,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "brier_score": 0.1876157009534461
+      },
+      {
+        "c": 0.03,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "brier_score": 0.14134179729931223
+      },
+      {
+        "c": 0.1,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "brier_score": 0.0949538943991881
+      },
+      {
+        "c": 0.3,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "brier_score": 0.06615666284363406
+      },
+      {
+        "c": 1.0,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "brier_score": 0.04822204026629009
+      },
+      {
+        "c": 3.0,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "brier_score": 0.04047651395141952
+      },
+      {
+        "c": 10.0,
+        "pr_auc": 0.9909090909090909,
+        "roc_auc": 0.9933333333333334,
+        "brier_score": 0.03790079181562192
+      }
+    ],
+    "validation": {
+      "rows": 25,
+      "positives": 10,
+      "roc_auc": 1.0,
+      "pr_auc": 0.9999999999999999,
+      "brier_score": 0.04047651395141952,
+      "threshold": 0.39499999999999996,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "confusion_matrix": {
+        "tn": 15,
+        "fp": 0,
+        "fn": 0,
+        "tp": 10
+      }
+    },
+    "test": {
+      "rows": 27,
+      "positives": 8,
+      "roc_auc": 0.875,
+      "pr_auc": 0.912037037037037,
+      "brier_score": 0.05148782486406523,
+      "threshold": 0.39499999999999996,
+      "precision": 0.875,
+      "recall": 0.875,
+      "f1": 0.875,
+      "confusion_matrix": {
+        "tn": 18,
+        "fp": 1,
+        "fn": 1,
+        "tp": 7
+      }
+    },
+    "test_by_year": {
+      "2023": {
+        "rows": 4,
+        "positives": 1,
+        "roc_auc": 1.0,
+        "pr_auc": 1.0,
+        "brier_score": 0.027518105257700827,
+        "threshold": 0.39499999999999996,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": {
+          "tn": 3,
+          "fp": 0,
+          "fn": 0,
+          "tp": 1
+        }
+      },
+      "2024": {
+        "rows": 4,
+        "positives": 1,
+        "roc_auc": 1.0,
+        "pr_auc": 1.0,
+        "brier_score": 0.0022925806870668403,
+        "threshold": 0.39499999999999996,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "confusion_matrix": {
+          "tn": 3,
+          "fp": 0,
+          "fn": 0,
+          "tp": 1
+        }
+      },
+      "2025": {
+        "rows": 16,
+        "positives": 5,
+        "roc_auc": 0.8,
+        "pr_auc": 0.8625,
+        "brier_score": 0.06807993030032329,
+        "threshold": 0.39499999999999996,
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "confusion_matrix": {
+          "tn": 11,
+          "fp": 0,
+          "fn": 1,
+          "tp": 4
+        }
+      },
+      "2026": {
+        "rows": 3,
+        "positives": 1,
+        "roc_auc": 1.0,
+        "pr_auc": 1.0,
+        "brier_score": 0.060549880915172515,
+        "threshold": 0.39499999999999996,
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666,
+        "confusion_matrix": {
+          "tn": 1,
+          "fp": 1,
+          "fn": 0,
+          "tp": 1
+        }
+      }
+    },
+    "split_counts": {
+      "train": {
+        "rows": 99,
+        "successes": 25
+      },
+      "test": {
+        "rows": 27,
+        "successes": 8
+      },
+      "validation": {
+        "rows": 25,
+        "successes": 10
+      }
+    }
+  }
+}

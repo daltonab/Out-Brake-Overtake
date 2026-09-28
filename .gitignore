@@ -1,0 +1,34 @@
+node_modules/
+.tools/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+coverage/
+data/
+.venv/
+__pycache__/
+
+# Data and generated artifacts, including exports outside data/.
+*.parquet
+*.arrow
+*.feather
+*.partial
+*.joblib
+*.pkl
+*.pickle
+ml/models/
+ml/reports/
+*.py[cod]
+*.tsbuildinfo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+.idea/
+.vscode/
+# public/models/*.json are intentional browser release artifacts; review before publishing.
