@@ -143,13 +143,17 @@ def main():
             meeting = meetings.get(session.get('meeting_key')) if session else None
             if not session or not meeting or session.get('session_name') not in ('Race', 'Sprint'):
                 continue
+            events = event_rows(session_dir)
+            available_drivers = {
+                number for event in events
+                for number in (event['overtaking_driver_number'], event['overtaken_driver_number'])
+            }
             drivers = [{
                 'driver_number': row['driver_number'], 'full_name': row['full_name'],
                 'name_acronym': row.get('name_acronym'), 'team_name': row.get('team_name'),
                 'team_colour': row.get('team_colour'),
-            } for row in read_rows(session_dir / 'drivers')]
+            } for row in read_rows(session_dir / 'drivers') if row['driver_number'] in available_drivers]
             drivers.sort(key=lambda row: row['full_name'])
-            events = event_rows(session_dir)
             write_json(args.output / 'sessions' / f'{session_key}.json', {'events': events})
             sessions.append({
                 'year': int(year_dir.name), 'meeting_key': session['meeting_key'],
