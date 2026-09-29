@@ -141,7 +141,7 @@ def main():
             session_key = int(session_dir.name)
             session = catalog.get(session_key)
             meeting = meetings.get(session.get('meeting_key')) if session else None
-            if not session or not meeting or session.get('session_name') != 'Race':
+            if not session or not meeting or session.get('session_name') not in ('Race', 'Sprint'):
                 continue
             drivers = [{
                 'driver_number': row['driver_number'], 'full_name': row['full_name'],
@@ -154,7 +154,7 @@ def main():
             sessions.append({
                 'year': int(year_dir.name), 'meeting_key': session['meeting_key'],
                 'meeting_name': meeting['meeting_name'], 'date_start': meeting['date_start'],
-                'session_key': session_key, 'drivers': drivers,
+                'session_key': session_key, 'session_name': session['session_name'], 'drivers': drivers,
             })
             print(f'{session_key}: {len(events)} qualifying events')
     sessions.sort(key=lambda row: (row['year'], row['date_start']))

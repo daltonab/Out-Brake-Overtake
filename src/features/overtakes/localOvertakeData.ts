@@ -1,7 +1,8 @@
 import type { Driver, Meeting, Session } from '../../api/openf1/types'
 
 type ManifestDriver = Pick<Driver, 'driver_number' | 'full_name' | 'name_acronym' | 'team_name' | 'team_colour'>
-type ManifestSession = { year: number; meeting_key: number; meeting_name: string; date_start: string; session_key: number; drivers: ManifestDriver[] }
+export type SessionKind = 'Race' | 'Sprint'
+type ManifestSession = { year: number; meeting_key: number; meeting_name: string; date_start: string; session_key: number; session_name: SessionKind; drivers: ManifestDriver[] }
 type Manifest = { format_version: number; sessions: ManifestSession[] }
 export type StaticTelemetry = { speed: number; brake: number; throttle: number }
 export type TelemetryPoint = { t: number; speed: number; brake: number }
@@ -17,13 +18,13 @@ async function manifest() {
   return manifestRequest
 }
 
-export async function getLocalRacesForYear(year: number): Promise<Meeting[]> {
-  return (await manifest()).sessions.filter((session) => session.year === year).map(({ meeting_key, meeting_name, date_start, year: sessionYear }) => ({ meeting_key, meeting_name, date_start, year: sessionYear })).sort((a, b) => Date.parse(a.date_start) - Date.parse(b.date_start))
+export async function getLocalRacesForYear(year: number, sessionKind: SessionKind): Promise<Meeting[]> {
+  return (await manifest()).sessions.filter((session) => session.year === year && session.session_name === sessionKind).map(({ meeting_key, meeting_name, date_start, year: sessionYear }) => ({ meeting_key, meeting_name, date_start, year: sessionYear })).sort((a, b) => Date.parse(a.date_start) - Date.parse(b.date_start))
 }
 
-export async function getLocalRaceSession(meetingKey: number): Promise<Session | undefined> {
-  const session = (await manifest()).sessions.find((entry) => entry.meeting_key === meetingKey)
-  return session && { meeting_key: session.meeting_key, session_key: session.session_key, session_name: 'Race', session_type: 'Race', date_start: session.date_start, year: session.year }
+export async function getLocalRaceSession(meetingKey: number, sessionKind: SessionKind): Promise<Session | undefined> {
+  const session = (await manifest()).sessions.find((entry) => entry.meeting_key === meetingKey && entry.session_name === sessionKind)
+  return session && { meeting_key: session.meeting_key, session_key: session.session_key, session_name: session.session_name, session_type: session.session_name, date_start: session.date_start, year: session.year }
 }
 
 export async function getLocalDrivers(sessionKey: number): Promise<Driver[]> {

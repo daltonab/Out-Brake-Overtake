@@ -8,17 +8,20 @@ import { HomePage } from './HomePage'
 import { ModelPage } from './ModelPage'
 import { AboutModelPage } from './AboutModelPage'
 import { OvertakeLines } from '../components/ApexMark'
+import type { SessionKind } from '../features/overtakes/localOvertakeData'
 
 export function AnalysisPage() {
   const [activeTab, setActiveTab] = useState<'home' | 'overtakes' | 'model' | 'about-model'>('home')
   const [year, setYear] = useState(2025)
+  const [sessionKind, setSessionKind] = useState<SessionKind>('Race')
   const [meetingKey, setMeetingKey] = useState<number>()
   const [driverNumber, setDriverNumber] = useState<number>()
-  const races = useQuery({ queryKey: ['races', year], queryFn: () => getRacesForYear(year) })
-  const session = useQuery({ queryKey: ['race-session', meetingKey], queryFn: () => getRaceSession(meetingKey!), enabled: meetingKey !== undefined })
+  const races = useQuery({ queryKey: ['races', year, sessionKind], queryFn: () => getRacesForYear(year, sessionKind) })
+  const session = useQuery({ queryKey: ['race-session', meetingKey, sessionKind], queryFn: () => getRaceSession(meetingKey!, sessionKind), enabled: meetingKey !== undefined })
   const drivers = useQuery({ queryKey: ['race-drivers', session.data?.session_key], queryFn: () => getDriversForRace(session.data!.session_key), enabled: session.data !== undefined })
   const overtakes = useDriverBrakingOvertakes(session.data?.session_key, driverNumber)
   useEffect(() => { setMeetingKey(undefined); setDriverNumber(undefined) }, [year])
+  useEffect(() => { setMeetingKey(undefined); setDriverNumber(undefined) }, [sessionKind])
   useEffect(() => { setDriverNumber(undefined) }, [meetingKey])
 
   return (
@@ -43,8 +46,8 @@ export function AnalysisPage() {
         <button className={activeTab === 'about-model' ? 'active' : ''} onClick={() => setActiveTab('about-model')}>About Our Model</button>
       </nav>
       {activeTab === 'home' ? <HomePage /> : activeTab === 'model' ? <ModelPage /> : activeTab === 'about-model' ? <AboutModelPage /> : <>
-        <AnalysisFilters year={year} raceKey={meetingKey} driverNumber={driverNumber} races={races.data ?? []} drivers={drivers.data ?? []} disabled={races.isLoading || session.isLoading || drivers.isLoading} onYearChange={setYear} onRaceChange={setMeetingKey} onDriverChange={setDriverNumber} />
-        <OvertakeWorkspace driverNumber={driverNumber} drivers={drivers.data ?? []} overtakes={overtakes.data} isLoading={overtakes.isLoading} error={overtakes.error} />
+        <AnalysisFilters year={year} sessionKind={sessionKind} raceKey={meetingKey} driverNumber={driverNumber} races={races.data ?? []} drivers={drivers.data ?? []} disabled={races.isLoading || session.isLoading || drivers.isLoading} onYearChange={setYear} onSessionKindChange={setSessionKind} onRaceChange={setMeetingKey} onDriverChange={setDriverNumber} />
+        <OvertakeWorkspace sessionName={sessionKind} driverNumber={driverNumber} drivers={drivers.data ?? []} overtakes={overtakes.data} isLoading={overtakes.isLoading} error={overtakes.error} />
       </>}
     </main>
   )

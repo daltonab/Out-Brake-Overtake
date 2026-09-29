@@ -44,7 +44,7 @@ body { margin: 0; min-width: 320px; }
 .masthead-mark i:nth-child(2) { opacity: .65; }.masthead-mark i:nth-child(3) { opacity: .3; }
 .eyebrow { color: #e13c36 !important; font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .filters-panel, .workspace { border: 1px solid #303239; border-radius: 12px; padding: 24px; background: #191b1f; }
-.filters-panel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.filters-panel { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .filters-panel label { display: grid; gap: 7px; color: #b4b7bd; font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
 select { width: 100%; border: 1px solid #43464e; border-radius: 6px; padding: 11px 12px; color: #f7f7f5; background: #101113; font: inherit; text-transform: none; letter-spacing: normal; }
 select:disabled { color: #777b84; }
