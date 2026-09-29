@@ -1,7 +1,7 @@
 import type { Driver, Meeting } from '../../api/openf1/types'
 
 type Props = { year: number; raceKey?: number; driverNumber?: number; races: Meeting[]; drivers: Driver[]; disabled?: boolean; onYearChange: (year: number) => void; onRaceChange: (meetingKey: number) => void; onDriverChange: (driverNumber: number) => void }
-const years = [2026, 2025, 2024, 2023]
+const years = [2025, 2024, 2023]
 
 export function AnalysisFilters({ year, raceKey, driverNumber, races, drivers, disabled, onYearChange, onRaceChange, onDriverChange }: Props) {
   return <section aria-label="Analysis filters" className="filters-panel">

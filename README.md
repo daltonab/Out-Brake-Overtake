@@ -35,6 +35,19 @@ npm run dev
 Copy `.env.example` to `.env` if you need to override environment settings.
 `VITE_*` values are public browser configuration, never secrets.
 
+## Overtakes-tab data
+
+The Overtakes tab reads compact static JSON from `public/overtakes/`; it does
+not call the OpenF1 API in the browser. After completed local sessions change,
+refresh those publishable files with:
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python3 scripts/export_overtake_views.py
+```
+
+The exporter processes only sessions marked complete and retains just the
+fields rendered by the UI. It never copies raw telemetry or Parquet files.
+
 Use Node 22 and Python 3.12 for development. Python setup:
 
 ```sh

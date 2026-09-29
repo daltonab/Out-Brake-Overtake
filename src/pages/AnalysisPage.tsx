@@ -11,7 +11,7 @@ import { OvertakeLines } from '../components/ApexMark'
 
 export function AnalysisPage() {
   const [activeTab, setActiveTab] = useState<'home' | 'overtakes' | 'model' | 'about-model'>('home')
-  const [year, setYear] = useState(2026)
+  const [year, setYear] = useState(2025)
   const [meetingKey, setMeetingKey] = useState<number>()
   const [driverNumber, setDriverNumber] = useState<number>()
   const races = useQuery({ queryKey: ['races', year], queryFn: () => getRacesForYear(year) })

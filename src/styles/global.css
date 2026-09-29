@@ -61,6 +61,11 @@ td { font-size: .9rem; }
 .role { display: inline-block; border-radius: 999px; padding: 4px 8px; font-size: .72rem; font-weight: 700; }
 .role.overtaking { color: #9ee5b2; background: #173825; }
 .role.overtaken { color: #ffc3bc; background: #42201d; }
+.pass-telemetry { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 22px; padding: 18px; border: 1px solid #373a42; background: #121417; }
+.telemetry-heading { grid-column: 1 / -1; display: flex; align-items: end; justify-content: space-between; gap: 16px; }.telemetry-heading .eyebrow { margin: 0 0 4px; }.telemetry-heading h3 { margin: 0; font-size: 1.05rem; }.telemetry-heading p { margin: 5px 0 0; color: #aeb2ba; font-size: .78rem; }
+.telemetry-key { display: grid; gap: 5px; color: #c7c9ce; font-size: .72rem; font-weight: 700; white-space: nowrap; }.telemetry-key span { display: flex; align-items: center; gap: 6px; }.telemetry-key span::before { width: 18px; border-top: 2px solid currentColor; content: ''; }.telemetry-key .pass { color: #fff; }.telemetry-key .passer { color: #e13c36; }.telemetry-key .defender { color: #8fa8c8; }.telemetry-key .passer::before, .telemetry-key .defender::before { border-top-style: dashed; }
+.telemetry-chart { min-width: 0; padding: 14px 10px 4px; border: 1px solid #303239; background: #17191d; }.telemetry-chart h4 { margin: 0 0 4px 8px; font-size: .82rem; }.telemetry-chart h4 span { color: #969aa3; font-size: .7rem; font-weight: 500; }
+.selected-event { background: rgba(225, 60, 54, .08); }.trace-button { border: 1px solid #555963; border-radius: 4px; padding: 6px 8px; color: #e6e8ec; background: #21242a; font: inherit; font-size: .74rem; font-weight: 700; cursor: pointer; }.trace-button:hover { border-color: #e13c36; color: #fff; }
 .input-bars { display: flex; align-items: end; justify-content: center; gap: 7px; min-width: 80px; }
 .telemetry-bar { position: relative; isolation: isolate; width: 35px; height: 58px; overflow: hidden; border: 1px solid #3d4149; border-radius: 3px; background: #101113; text-align: center; }
 .telemetry-bar span { position: absolute; z-index: -1; inset: auto 0 0; transition: height .2s ease; }
@@ -79,3 +84,4 @@ td { font-size: .9rem; }
 @media (max-width: 720px) { .model-intro { flex-direction: column; } .model-controls, .model-grid { grid-template-columns: 1fr; } .model-coverage { align-items: start; flex-direction: column; } }
 @media (max-width: 720px) { .model-layout, .scenario-selects, .scenario-input-grid { grid-template-columns: 1fr; } .model-badge { margin-top: 4px; } }
 @media (max-width: 720px) { .about-model-grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .pass-telemetry { grid-template-columns: 1fr; } .telemetry-heading { align-items: start; flex-direction: column; } }
