@@ -8,6 +8,7 @@ import { HomePage } from './HomePage'
 import { ModelPage } from './ModelPage'
 import { AboutModelPage } from './AboutModelPage'
 import { OvertakeLines } from '../components/ApexMark'
+import { SiteFooter } from '../components/SiteFooter'
 import type { SessionKind } from '../features/overtakes/localOvertakeData'
 
 export function AnalysisPage() {
@@ -49,6 +50,7 @@ export function AnalysisPage() {
         <AnalysisFilters year={year} sessionKind={sessionKind} raceKey={meetingKey} driverNumber={driverNumber} races={races.data ?? []} drivers={drivers.data ?? []} disabled={races.isLoading || session.isLoading || drivers.isLoading} onYearChange={setYear} onSessionKindChange={setSessionKind} onRaceChange={setMeetingKey} onDriverChange={setDriverNumber} />
         <OvertakeWorkspace sessionName={sessionKind} driverNumber={driverNumber} drivers={drivers.data ?? []} overtakes={overtakes.data} isLoading={overtakes.isLoading} error={overtakes.error} />
       </>}
+      <SiteFooter />
     </main>
   )
 }

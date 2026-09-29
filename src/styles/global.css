@@ -28,7 +28,7 @@ body { margin: 0; min-width: 320px; }
 .home-copy h2 { margin: 8px 0 16px; font-size: clamp(2.2rem, 5.4vw, 5.4rem); line-height: .95; letter-spacing: -.065em; }
 .home-copy > p:not(.eyebrow) { max-width: 470px; color: #d5d7dc; font-size: 1.05rem; line-height: 1.55; }
 .home-note { margin-top: 12px; border-left: 2px solid #e13c36; padding-left: 12px; color: #a7abb3 !important; font-size: .86rem !important; }
-.home-disclaimer { max-width: 500px; margin-top: 24px; color: #8f939c !important; font-size: .7rem !important; line-height: 1.5; }
+.site-footer { max-width: 760px; margin: 36px auto 0; border-top: 1px solid rgba(255, 255, 255, .16); padding: 15px 12px 0; color: #8f939c; font-size: .72rem; line-height: 1.5; text-align: center; }.site-footer p { margin: 0; }.site-footer p + p { margin-top: 6px; }.site-footer a { color: #f0a29d; font-weight: 700; }.site-footer a:hover { color: #fff; }
 .model-page { min-height: 480px; padding: clamp(28px, 5vw, 64px); border: 1px solid #303239; border-radius: 10px; background: linear-gradient(135deg, #17191d, #111214); }
 .model-intro { display: flex; align-items: start; justify-content: space-between; gap: 24px; }.model-intro h2 { margin: 8px 0; font-size: clamp(2rem, 4vw, 3.7rem); letter-spacing: -.055em; }.model-intro p:not(.eyebrow) { max-width: 600px; color: #b9bdc5; line-height: 1.5; }
 .model-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 30px; }.model-controls label { display: grid; gap: 7px; color: #aeb2ba; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }.model-controls select { padding: 9px 10px; }

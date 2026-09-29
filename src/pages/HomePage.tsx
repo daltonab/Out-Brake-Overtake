@@ -9,7 +9,6 @@ export function HomePage() {
         <h2>Precision beyond the pass.</h2>
         <p>Out Brake, Overtake explores how braking, speed, and race context shape decisive moves in Formula 1.</p>
         <p className="home-note">Built for transparent analysis, shared learning, and better questions—not proprietary race intelligence.</p>
-        <p className="home-disclaimer">Out Brake, Overtake is an independent community project and is not affiliated with or endorsed by Formula 1, the FIA, any team, driver, or OpenF1. Formula 1, FIA, team, and driver names and marks belong to their respective owners.</p>
       </div>
     </section>
   )
