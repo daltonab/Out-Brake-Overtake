@@ -136,6 +136,49 @@ def summarize(rows):
                                  for f in NUMERIC_FEATURES}}
 
 
+def accepted_session_rows(session_dir, metadata, year):
+    """Return the exact model-eligible population for one completed session."""
+    cache = {}
+
+    def reader(path):
+        if path not in cache:
+            cache[path] = read_rows(path)
+        return cache[path]
+
+    roster = {r['driver_number']: r for r in reader(session_dir / 'drivers')}
+    identities = {n: driver_identity(r) for n, r in roster.items()}
+    if len(set(identities.values())) != len(identities):
+        raise ValueError(f'Duplicate driver identity in session {session_dir.name}')
+    windows = pq.read_table(session_dir / 'derived/candidate_windows.parquet').to_pylist()
+    laps = reader(session_dir / 'laps')
+    lap_timelines = {n: timeline(laps, n, 'date_start') for n in roster}
+    pits = reader(session_dir / 'pit')
+    messages = timeline(reader(session_dir / 'race_control'))
+    reasons, session_rows, ambiguous = Counter(), [], 0
+    context = prepare_session(session_dir, reader=reader)
+    for number in sorted(roster):
+        candidates, count = build_session(session_dir, number, context=context)
+        ambiguous += count
+        for row in candidates:
+            reason = exclusion(row, windows, lap_timelines, pits, messages)
+            if reason:
+                reasons[reason] += 1
+                continue
+            for role in ('attacker', 'defender'):
+                n = row[f'{role}_driver_number']
+                row[f'{role}_driver_id'] = identities[n]
+                row[f'{role}_driver_name'] = roster[n]['full_name']
+            row.update(year=year, session_name=metadata['session_name'],
+                       meeting_key=metadata['meeting_key'])
+            if not pits:
+                row['quality_flags'].append('pit_lap_fallback')
+            session_rows.append(row)
+    entry = {'session_key': int(session_dir.name), 'year': year,
+             'session_name': metadata['session_name'], **summarize(session_rows),
+             'excluded': dict(reasons), 'ambiguous': ambiguous}
+    return session_rows, entry
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', type=Path, default=Path('data/openf1-pooled'))
@@ -160,43 +203,8 @@ def main():
             metadata = catalog.get(key)
             if not metadata or metadata.get('session_name') not in ('Race', 'Sprint'):
                 raise ValueError(f'Missing or unsupported session catalog entry: {key}')
-            cache = {}
-            def reader(path):
-                if path not in cache:
-                    cache[path] = read_rows(path)
-                return cache[path]
-            roster = {r['driver_number']: r for r in reader(session_dir / 'drivers')}
-            identities = {n: driver_identity(r) for n, r in roster.items()}
-            if len(set(identities.values())) != len(identities):
-                raise ValueError(f'Duplicate driver identity in session {key}')
-            windows = pq.read_table(session_dir / 'derived/candidate_windows.parquet').to_pylist()
-            laps = reader(session_dir / 'laps')
-            lap_timelines = {n: timeline(laps, n, 'date_start') for n in roster}
-            pits = reader(session_dir / 'pit')
-            messages = timeline(reader(session_dir / 'race_control'))
-            reasons, session_rows, ambiguous = Counter(), [], 0
-            context = prepare_session(session_dir, reader=reader)
-            for number in sorted(roster):
-                candidates, count = build_session(session_dir, number, context=context)
-                ambiguous += count
-                for row in candidates:
-                    reason = exclusion(row, windows, lap_timelines, pits, messages)
-                    if reason:
-                        reasons[reason] += 1
-                        continue
-                    for role in ('attacker', 'defender'):
-                        n = row[f'{role}_driver_number']
-                        row[f'{role}_driver_id'] = identities[n]
-                        row[f'{role}_driver_name'] = roster[n]['full_name']
-                    row.update(year=int(year_dir.name), session_name=metadata['session_name'],
-                               meeting_key=metadata['meeting_key'])
-                    if not pits:
-                        row['quality_flags'].append('pit_lap_fallback')
-                    session_rows.append(row)
+            session_rows, entry = accepted_session_rows(session_dir, metadata, int(year_dir.name))
             rows.extend(session_rows)
-            entry = {'session_key': key, 'year': int(year_dir.name),
-                     'session_name': metadata['session_name'], **summarize(session_rows),
-                     'excluded': dict(reasons), 'ambiguous': ambiguous}
             sessions.append(entry)
             print(json.dumps(entry), flush=True)
     if not sessions:

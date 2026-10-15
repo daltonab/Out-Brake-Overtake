@@ -12,17 +12,20 @@ from pathlib import Path
 import shutil
 
 from prepare_data import read_rows, stamp
+from prepare_pooled import accepted_session_rows, complete_files
 
 
 PRE_OVERTAKE_WINDOW_SECONDS = 8
 POST_OVERTAKE_WINDOW_SECONDS = 2
-MINIMUM_LATE_BRAKE_MS = 250
 FORMAT_VERSION = 1
 
 
-def event_rows(session_dir):
-    overtakes = read_rows(session_dir / 'overtakes')
-    laps = read_rows(session_dir / 'laps')
+def event_rows(session_dir, metadata, year):
+    """Export only accepted successful pooled attempts, never raw pass records."""
+    accepted, _ = accepted_session_rows(session_dir, metadata, year)
+    successes = [row for row in accepted if row['overtake_success']]
+    if not successes:
+        return []
     telemetry = defaultdict(list)
     for row in read_rows(session_dir / 'car_data'):
         if row.get('date') and row.get('driver_number') is not None:
@@ -32,42 +35,30 @@ def event_rows(session_dir):
         rows.sort(key=lambda row: stamp(row['date']))
         telemetry_times[number] = [stamp(row['date']) for row in rows]
 
-    laps_by_driver = defaultdict(list)
-    for lap in laps:
-        if lap.get('date_start'):
-            laps_by_driver[lap['driver_number']].append(lap)
-    for rows in laps_by_driver.values():
-        rows.sort(key=lambda row: stamp(row['date_start']))
-
     events = []
-    for overtake in overtakes:
-        passer = overtake.get('overtaking_driver_number')
-        defender = overtake.get('overtaken_driver_number')
-        if passer is None or defender is None or not overtake.get('date'):
-            continue
-        event_at = stamp(overtake['date'])
+    for attempt in successes:
+        passer = attempt['attacker_driver_number']
+        defender = attempt['defender_driver_number']
+        event_at = stamp(attempt['brake_onset_at'])
         passing_window = samples_in_window(
             telemetry.get(passer, []), telemetry_times.get(passer, []), event_at,
         )
         defending_window = samples_in_window(
             telemetry.get(defender, []), telemetry_times.get(defender, []), event_at,
         )
-        passer_brake = first_brake(passing_window)
-        defender_brake = first_brake(defending_window)
+        passer_brake = nearest_sample(passing_window, attempt['brake_onset_at'])
+        defender_brake = nearest_sample(defending_window, event_at - attempt['brake_onset_delta_seconds'])
         if passer_brake is None or defender_brake is None:
-            continue
-        delay_ms = round((stamp(passer_brake['date']) - stamp(defender_brake['date'])) * 1000)
-        if delay_ms < MINIMUM_LATE_BRAKE_MS:
             continue
         defender_at_passer_brake = nearest_sample(defending_window, passer_brake['date'])
         if defender_at_passer_brake is None:
             continue
         events.append({
-            'date': overtake['date'],
+            'event_id': attempt['event_id'], 'date': attempt['brake_onset_at'],
             'overtaking_driver_number': passer,
             'overtaken_driver_number': defender,
-            'lap_number': lap_at(laps_by_driver[passer], overtake['date']),
-            'brake_onset_advantage_ms': delay_ms,
+            'lap_number': attempt['lap_number'],
+            'brake_onset_advantage_ms': round(attempt['brake_onset_delta_seconds'] * 1000),
             'passer': inputs(passer_brake),
             'defender_at_passer_brake': inputs(defender_at_passer_brake),
             'passer_brake_offset_ms': round((stamp(passer_brake['date']) - event_at) * 1000),
@@ -84,25 +75,11 @@ def samples_in_window(rows, times, event_at):
     return rows[bisect_left(times, start):bisect_right(times, end)]
 
 
-def first_brake(rows):
-    return next((row for row in rows if (row.get('brake') or 0) >= 1), None)
-
-
 def nearest_sample(rows, target_date):
     if not rows:
         return None
-    target = stamp(target_date)
+    target = target_date if isinstance(target_date, (int, float)) else stamp(target_date)
     return min(rows, key=lambda row: abs(stamp(row['date']) - target))
-
-
-def lap_at(laps, event_date):
-    event_at = stamp(event_date)
-    result = None
-    for lap in laps:
-        if stamp(lap['date_start']) > event_at:
-            break
-        result = lap
-    return result.get('lap_number') if result else None
 
 
 def inputs(row):
@@ -143,7 +120,8 @@ def main():
             meeting = meetings.get(session.get('meeting_key')) if session else None
             if not session or not meeting or session.get('session_name') not in ('Race', 'Sprint'):
                 continue
-            events = event_rows(session_dir)
+            complete_files(session_dir)
+            events = event_rows(session_dir, session, int(year_dir.name))
             available_drivers = {
                 number for event in events
                 for number in (event['overtaking_driver_number'], event['overtaken_driver_number'])

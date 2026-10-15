@@ -1,0 +1,348 @@
+{
+  "format_version": 1,
+  "model_type": "logistic_regression",
+  "model_scope": "pooled",
+  "model_name": "pooled-out-braking",
+  "driver": null,
+  "exported_at": "2026-10-15T13:33:44.249735+00:00",
+  "decision_threshold": 0.57,
+  "numeric": {
+    "features": [
+      "gap_seconds",
+      "closing_rate_seconds_per_second",
+      "attacker_speed_kph",
+      "speed_delta_kph",
+      "brake_onset_delta_seconds",
+      "brake_distance_delta_m",
+      "throttle_lift_delta_seconds",
+      "attacker_tyre_age_laps",
+      "defender_tyre_age_laps",
+      "lap_fraction",
+      "rainfall",
+      "track_temperature_c"
+    ],
+    "impute_medians": [
+      0.424,
+      0.015995872332138478,
+      269.0,
+      38.0,
+      0.6000001430511475,
+      14.60092422938115,
+      0.5199999809265137,
+      8.0,
+      10.0,
+      0.3684210526315789,
+      0.0,
+      33.5
+    ],
+    "means": [
+      0.39117358922944717,
+      0.023390080918238024,
+      260.93354339730735,
+      40.431395015754795,
+      0.619767974693978,
+      19.007852011681912,
+      0.6661750178253777,
+      10.301919220853623,
+      13.001145803494701,
+      0.41932735856796266,
+      0.036092810083070755,
+      34.969435691778855
+    ],
+    "scales": [
+      0.15599197623575423,
+      0.024677444019806993,
+      48.096891437304706,
+      19.03880702040753,
+      0.27663204424867693,
+      14.070644560902013,
+      1.3946525033503074,
+      8.962376836024479,
+      11.16961231672202,
+      0.29736716670654734,
+      0.18652109570603037,
+      8.770441503560521
+    ]
+  },
+  "categorical": {
+    "features": [
+      "attacker_compound",
+      "defender_compound",
+      "attacker_drs_active"
+    ],
+    "impute_values": [
+      "MEDIUM",
+      "MEDIUM",
+      false
+    ],
+    "categories": [
+      [
+        "HARD",
+        "INTERMEDIATE",
+        "MEDIUM",
+        "SOFT",
+        "WET",
+        null
+      ],
+      [
+        "HARD",
+        "INTERMEDIATE",
+        "MEDIUM",
+        "SOFT",
+        "WET",
+        null
+      ],
+      [
+        false,
+        true
+      ]
+    ]
+  },
+  "encoded_feature_order": [
+    "numeric__gap_seconds",
+    "numeric__closing_rate_seconds_per_second",
+    "numeric__attacker_speed_kph",
+    "numeric__speed_delta_kph",
+    "numeric__brake_onset_delta_seconds",
+    "numeric__brake_distance_delta_m",
+    "numeric__throttle_lift_delta_seconds",
+    "numeric__attacker_tyre_age_laps",
+    "numeric__defender_tyre_age_laps",
+    "numeric__lap_fraction",
+    "numeric__rainfall",
+    "numeric__track_temperature_c",
+    "categorical__attacker_compound_HARD",
+    "categorical__attacker_compound_INTERMEDIATE",
+    "categorical__attacker_compound_MEDIUM",
+    "categorical__attacker_compound_SOFT",
+    "categorical__attacker_compound_WET",
+    "categorical__attacker_compound_None",
+    "categorical__defender_compound_HARD",
+    "categorical__defender_compound_INTERMEDIATE",
+    "categorical__defender_compound_MEDIUM",
+    "categorical__defender_compound_SOFT",
+    "categorical__defender_compound_WET",
+    "categorical__defender_compound_None",
+    "categorical__attacker_drs_active_False",
+    "categorical__attacker_drs_active_True"
+  ],
+  "coefficients": [
+    -1.617394309880419,
+    0.7053003253473266,
+    0.18103774662940483,
+    0.05452655058470466,
+    -0.30890721411750355,
+    0.47103481269855124,
+    -0.040019616151574525,
+    -0.36511855244285524,
+    0.3931106054533335,
+    -0.14594471534008716,
+    0.06012814103032208,
+    0.01838654750003384,
+    -0.12485596913829393,
+    0.23728330658710844,
+    -0.07280854404873328,
+    -0.13018443769829582,
+    0.013550674994723826,
+    0.07918113500962419,
+    -0.07843770861712732,
+    -0.09332692956568527,
+    0.002555891591900522,
+    0.014224900326878237,
+    0.003770225436958806,
+    0.15337978653320905,
+    -0.0633441697417929,
+    0.0655103354479267
+  ],
+  "intercept": -1.5950647422823054,
+  "evaluation": {
+    "model": "class-balanced logistic regression",
+    "input_sha256": "4a42fb6f0b4fa8ab0d72fa35371a268fd79e441c227ff9c4aa9e3c0c4e11e0eb",
+    "model_scope": "pooled",
+    "model_name": "pooled-out-braking",
+    "features": {
+      "numeric": [
+        "gap_seconds",
+        "closing_rate_seconds_per_second",
+        "attacker_speed_kph",
+        "speed_delta_kph",
+        "brake_onset_delta_seconds",
+        "brake_distance_delta_m",
+        "throttle_lift_delta_seconds",
+        "attacker_tyre_age_laps",
+        "defender_tyre_age_laps",
+        "lap_fraction",
+        "rainfall",
+        "track_temperature_c"
+      ],
+      "categorical": [
+        "attacker_compound",
+        "defender_compound",
+        "attacker_drs_active"
+      ]
+    },
+    "selected_regularization_c": 0.03,
+    "tuning": [
+      {
+        "c": 0.01,
+        "pr_auc": 0.8725170009074361,
+        "roc_auc": 0.9712216426390657,
+        "brier_score": 0.049086604412422845
+      },
+      {
+        "c": 0.03,
+        "pr_auc": 0.877398483355131,
+        "roc_auc": 0.9721115537848606,
+        "brier_score": 0.045207943237661544
+      },
+      {
+        "c": 0.1,
+        "pr_auc": 0.8755462945186754,
+        "roc_auc": 0.9716871346230199,
+        "brier_score": 0.04384111025650503
+      },
+      {
+        "c": 0.3,
+        "pr_auc": 0.8758536390058795,
+        "roc_auc": 0.9716734436823153,
+        "brier_score": 0.043482620903616945
+      },
+      {
+        "c": 1.0,
+        "pr_auc": 0.8739594624973,
+        "roc_auc": 0.9716460618009063,
+        "brier_score": 0.04332167939122035
+      },
+      {
+        "c": 3.0,
+        "pr_auc": 0.8731126636702766,
+        "roc_auc": 0.9715365342752701,
+        "brier_score": 0.043152190198897974
+      },
+      {
+        "c": 10.0,
+        "pr_auc": 0.8736323781185659,
+        "roc_auc": 0.9716049889787928,
+        "brier_score": 0.042994452811683403
+      }
+    ],
+    "validation": {
+      "rows": 850,
+      "positives": 97,
+      "roc_auc": 0.9721115537848606,
+      "pr_auc": 0.877398483355131,
+      "brier_score": 0.045207943237661544,
+      "threshold": 0.57,
+      "precision": 0.7652173913043478,
+      "recall": 0.9072164948453608,
+      "f1": 0.8301886792452831,
+      "confusion_matrix": {
+        "tn": 726,
+        "fp": 27,
+        "fn": 9,
+        "tp": 88
+      }
+    },
+    "test": {
+      "rows": 723,
+      "positives": 105,
+      "roc_auc": 0.9524734165510865,
+      "pr_auc": 0.8586519563852013,
+      "brier_score": 0.06478023606052478,
+      "threshold": 0.57,
+      "precision": 0.703125,
+      "recall": 0.8571428571428571,
+      "f1": 0.7725321888412017,
+      "confusion_matrix": {
+        "tn": 580,
+        "fp": 38,
+        "fn": 15,
+        "tp": 90
+      }
+    },
+    "test_by_year": {
+      "2023": {
+        "rows": 291,
+        "positives": 49,
+        "roc_auc": 0.9426547478495532,
+        "pr_auc": 0.8448150013741851,
+        "brier_score": 0.07748945599521281,
+        "threshold": 0.57,
+        "precision": 0.6785714285714286,
+        "recall": 0.7755102040816326,
+        "f1": 0.7238095238095238,
+        "confusion_matrix": {
+          "tn": 224,
+          "fp": 18,
+          "fn": 11,
+          "tp": 38
+        }
+      },
+      "2024": {
+        "rows": 149,
+        "positives": 26,
+        "roc_auc": 0.9418386491557225,
+        "pr_auc": 0.9073275785640528,
+        "brier_score": 0.0449124381973095,
+        "threshold": 0.57,
+        "precision": 0.8846153846153846,
+        "recall": 0.8846153846153846,
+        "f1": 0.8846153846153846,
+        "confusion_matrix": {
+          "tn": 120,
+          "fp": 3,
+          "fn": 3,
+          "tp": 23
+        }
+      },
+      "2025": {
+        "rows": 215,
+        "positives": 16,
+        "roc_auc": 0.9566582914572864,
+        "pr_auc": 0.745362821245739,
+        "brier_score": 0.05625633518726628,
+        "threshold": 0.57,
+        "precision": 0.5769230769230769,
+        "recall": 0.9375,
+        "f1": 0.7142857142857143,
+        "confusion_matrix": {
+          "tn": 188,
+          "fp": 11,
+          "fn": 1,
+          "tp": 15
+        }
+      },
+      "2026": {
+        "rows": 68,
+        "positives": 14,
+        "roc_auc": 0.9867724867724867,
+        "pr_auc": 0.9563632639290534,
+        "brier_score": 0.08087667088957541,
+        "threshold": 0.57,
+        "precision": 0.7,
+        "recall": 1.0,
+        "f1": 0.8235294117647058,
+        "confusion_matrix": {
+          "tn": 48,
+          "fp": 6,
+          "fn": 0,
+          "tp": 14
+        }
+      }
+    },
+    "split_counts": {
+      "test": {
+        "rows": 723,
+        "successes": 105
+      },
+      "train": {
+        "rows": 3491,
+        "successes": 458
+      },
+      "validation": {
+        "rows": 850,
+        "successes": 97
+      }
+    }
+  }
+}
