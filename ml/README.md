@@ -78,3 +78,66 @@ PYTHONPATH=ml/src .venv/bin/python ml/src/assess_pooled_baseline.py \
   --model ml/models/pooled-out-braking.joblib \
   --output ml/reports/pooled-out-braking-assessment.json
 ```
+
+## Generalization benchmarks
+
+Run these benchmark-only checks before replacing the browser model. Each
+individual experiment trains on 2023–2024, tunes and Platt-calibrates on 2025,
+then evaluates 2026. The report also performs leave-one-circuit-out evaluation
+using the existing weekend-safe training and validation partitions. Because
+2026 has now informed several completed experiments, do not reuse it for new
+feature selection; use rolling historical splits and reserve newly acquired
+data for the next independent confirmation. See
+[`docs/MODEL_VALIDATION.md`](../docs/MODEL_VALIDATION.md) for recorded results
+and promotion decisions.
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python ml/src/evaluate_generalization.py \
+  --input data/processed/pooled/attempts.parquet \
+  --output ml/reports/pooled-out-braking-generalization.json
+```
+
+For an error breakdown of the temporal test by circuit type and physical
+attempt segments, run:
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python ml/src/analyze_temporal_errors.py \
+  --input data/processed/pooled/attempts.parquet \
+  --output ml/reports/pooled-out-braking-temporal-errors.json
+```
+
+To compare proposed physical and circuit-type interaction features against the
+baseline without changing the browser model, run:
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python ml/src/evaluate_interaction_features.py \
+  --input data/processed/pooled/attempts.parquet \
+  --output ml/reports/pooled-out-braking-interactions.json
+```
+
+To benchmark past-only telemetry and race-context features, first build a
+separate experimental dataset, then compare it to the baseline:
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python ml/src/prepare_pooled.py \
+  --output data/processed/pooled/attempts-context.parquet \
+  --report ml/reports/pooled-context-preprocessing.json
+
+PYTHONPATH=ml/src .venv/bin/python ml/src/evaluate_context_features.py \
+  --input data/processed/pooled/attempts-context.parquet \
+  --output ml/reports/pooled-out-braking-context.json
+```
+
+To select new powertrain, position, tyre-matchup, and session-context signals
+on 2025 before one 2026 confirmation test, build a separate signal dataset and
+run:
+
+```sh
+PYTHONPATH=ml/src .venv/bin/python ml/src/prepare_pooled.py \
+  --output data/processed/pooled/attempts-signals.parquet \
+  --report ml/reports/pooled-signals-preprocessing.json
+
+PYTHONPATH=ml/src .venv/bin/python ml/src/evaluate_new_signals.py \
+  --input data/processed/pooled/attempts-signals.parquet \
+  --output ml/reports/pooled-out-braking-new-signals.json
+```

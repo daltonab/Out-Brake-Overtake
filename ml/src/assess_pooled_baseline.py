@@ -11,14 +11,14 @@ import pandas as pd
 from sklearn.metrics import brier_score_loss
 
 from schema import TARGET, validate_columns
-from train_model import FEATURES
+from train_model import FEATURES, calibrated_probability
 
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def calibration(target, probability):
+def calibration(target, probability, note):
     edges = np.linspace(0, 1, 6)
     rows = []
     for low, high in zip(edges[:-1], edges[1:]):
@@ -32,8 +32,7 @@ def calibration(target, probability):
                      'absolute_gap': abs(observed - predicted)})
     ece = sum(row['rows'] * row['absolute_gap'] for row in rows) / len(target)
     return {'brier_score': float(brier_score_loss(target, probability)),
-            'expected_calibration_error_5_bins': float(ece), 'bins': rows,
-            'note': 'Diagnostic only; this model is not probability-calibrated.'}
+            'expected_calibration_error_5_bins': float(ece), 'bins': rows, 'note': note}
 
 
 def main():
@@ -68,7 +67,8 @@ def main():
     if model_input_sha256 is not None and model_input_sha256 != input_sha256:
         raise ValueError('Model was trained from a different parquet revision; retrain before assessment')
     test = frame[frame['dataset_split'] == 'test']
-    probability = artifact['pipeline'].predict_proba(test[list(FEATURES)])[:, 1]
+    raw_probability = artifact['pipeline'].predict_proba(test[list(FEATURES)])[:, 1]
+    probability = calibrated_probability(raw_probability, artifact.get('calibration'))
     successes = frame[frame[TARGET].astype(bool)]
     gate_fields = {'gap_seconds': ('<=', 1.0), 'speed_delta_kph': ('>', 0.0),
                    'brake_onset_delta_seconds': ('<=', 5.0)}
@@ -88,7 +88,11 @@ def main():
                       'rows': int(len(frame)), 'meeting_split_leakage': leaking_meetings,
                       'split_counts': split_counts,
                       'missing_features': {field: int(frame[field].isna().sum()) for field in FEATURES}},
-        'test_calibration': calibration(test[TARGET].to_numpy(), probability),
+        'test_calibration': calibration(test[TARGET].to_numpy(), probability,
+                                        'Platt-scaled on the validation split only.'),
+        'uncalibrated_test_calibration': calibration(
+            test[TARGET].to_numpy(), raw_probability,
+            'Class-balanced base-model probabilities before Platt scaling.'),
         'confirmed_success_gate_coverage': gate_coverage,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

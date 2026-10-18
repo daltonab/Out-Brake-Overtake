@@ -21,17 +21,41 @@ MODEL_CATEGORICAL = ('attacker_compound', 'defender_compound', 'attacker_drs_act
 FEATURES = (*MODEL_NUMERIC, *MODEL_CATEGORICAL)
 
 
-def make_pipeline(c_value):
+def make_pipeline(c_value, numeric_features=MODEL_NUMERIC, categorical_features=MODEL_CATEGORICAL):
     transform = ColumnTransformer([
         ('numeric', Pipeline([('impute', SimpleImputer(strategy='median')),
-                              ('scale', StandardScaler())]), list(MODEL_NUMERIC)),
+                              ('scale', StandardScaler())]), list(numeric_features)),
         ('categorical', Pipeline([('impute', SimpleImputer(strategy='most_frequent')),
                                   ('encode', OneHotEncoder(handle_unknown='ignore'))]),
-         list(MODEL_CATEGORICAL)),
+         list(categorical_features)),
     ])
     return Pipeline([('transform', transform),
                      ('model', LogisticRegression(C=c_value, class_weight='balanced',
                                                   max_iter=5000, random_state=42))])
+
+
+def logit(probability):
+    """Return stable log-odds for probabilities emitted by the base model."""
+    clipped = np.clip(np.asarray(probability), 1e-6, 1 - 1e-6)
+    return np.log(clipped / (1 - clipped))
+
+
+def fit_platt_scaler(target, raw_probability):
+    """Fit calibration on validation predictions only, preserving prevalence."""
+    scaler = LogisticRegression(C=1e6, max_iter=5000, random_state=42)
+    scaler.fit(logit(raw_probability).reshape(-1, 1), target)
+    return {'method': 'platt_scaling', 'input': 'logit_of_raw_probability',
+            'coefficient': float(scaler.coef_[0, 0]), 'intercept': float(scaler.intercept_[0])}
+
+
+def calibrated_probability(raw_probability, calibration):
+    """Apply a serialized Platt scaler without depending on a fitted sklearn object."""
+    if not calibration:
+        return np.asarray(raw_probability)
+    if calibration.get('method') != 'platt_scaling':
+        raise ValueError(f'Unsupported calibration method: {calibration.get("method")}')
+    score = calibration['coefficient'] * logit(raw_probability) + calibration['intercept']
+    return 1 / (1 + np.exp(-score))
 
 
 def metrics(target, probability, threshold):
@@ -102,21 +126,29 @@ def main():
     selected = max(tuning, key=lambda row: (row['pr_auc'], -row['brier_score']))
     model = make_pipeline(selected['c'])
     model.fit(train[list(FEATURES)], train[TARGET])
-    validation_probability = model.predict_proba(validation[list(FEATURES)])[:, 1]
+    validation_raw_probability = model.predict_proba(validation[list(FEATURES)])[:, 1]
+    calibration = fit_platt_scaler(validation[TARGET].to_numpy(), validation_raw_probability)
+    validation_probability = calibrated_probability(validation_raw_probability, calibration)
     threshold = choose_threshold(validation[TARGET].to_numpy(), validation_probability)
-    test_probability = model.predict_proba(test[list(FEATURES)])[:, 1]
+    test_raw_probability = model.predict_proba(test[list(FEATURES)])[:, 1]
+    test_probability = calibrated_probability(test_raw_probability, calibration)
     report = {'model': 'class-balanced logistic regression', 'input_sha256': input_sha256,
               'model_scope': 'pooled', 'model_name': args.model_name,
               'features': {'numeric': list(MODEL_NUMERIC),
                            'categorical': list(MODEL_CATEGORICAL)},
               'selected_regularization_c': selected['c'], 'tuning': tuning,
+              'calibration': calibration,
+              'uncalibrated_brier_score': {
+                  'validation': float(brier_score_loss(validation[TARGET], validation_raw_probability)),
+                  'test': float(brier_score_loss(test[TARGET], test_raw_probability))},
               'validation': metrics(validation[TARGET].to_numpy(), validation_probability, threshold),
               'test': metrics(test[TARGET].to_numpy(), test_probability, threshold),
               'test_by_year': yearly_metrics(test, test_probability, threshold),
               'split_counts': {name: {'rows': int(len(subset)),
                                       'successes': int(subset[TARGET].sum())}
                                for name, subset in subsets.items()}}
-    artifact = {'pipeline': model, 'threshold': threshold, 'input_sha256': input_sha256,
+    artifact = {'pipeline': model, 'threshold': threshold, 'calibration': calibration,
+                'input_sha256': input_sha256,
                 'model_scope': 'pooled', 'model_name': args.model_name,
                 'features': report['features'], 'report': report}
     args.model_output.parent.mkdir(parents=True, exist_ok=True)

@@ -1,11 +1,17 @@
 {
-  "format_version": 1,
+  "format_version": 2,
   "model_type": "logistic_regression",
   "model_scope": "pooled",
   "model_name": "pooled-out-braking",
   "driver": null,
-  "exported_at": "2026-10-15T13:33:44.249735+00:00",
-  "decision_threshold": 0.57,
+  "exported_at": "2026-10-15T14:51:59.569746+00:00",
+  "decision_threshold": 0.245,
+  "calibration": {
+    "method": "platt_scaling",
+    "input": "logit_of_raw_probability",
+    "coefficient": 1.323129181354988,
+    "intercept": -1.594921977709085
+  },
   "numeric": {
     "features": [
       "gap_seconds",
@@ -226,13 +232,23 @@
         "brier_score": 0.042994452811683403
       }
     ],
+    "calibration": {
+      "method": "platt_scaling",
+      "input": "logit_of_raw_probability",
+      "coefficient": 1.323129181354988,
+      "intercept": -1.594921977709085
+    },
+    "uncalibrated_brier_score": {
+      "validation": 0.045207943237661544,
+      "test": 0.06478023606052478
+    },
     "validation": {
       "rows": 850,
       "positives": 97,
       "roc_auc": 0.9721115537848606,
       "pr_auc": 0.877398483355131,
-      "brier_score": 0.045207943237661544,
-      "threshold": 0.57,
+      "brier_score": 0.03216667385109319,
+      "threshold": 0.245,
       "precision": 0.7652173913043478,
       "recall": 0.9072164948453608,
       "f1": 0.8301886792452831,
@@ -248,14 +264,14 @@
       "positives": 105,
       "roc_auc": 0.9524734165510865,
       "pr_auc": 0.8586519563852013,
-      "brier_score": 0.06478023606052478,
-      "threshold": 0.57,
-      "precision": 0.703125,
+      "brier_score": 0.04222858180285307,
+      "threshold": 0.245,
+      "precision": 0.7086614173228346,
       "recall": 0.8571428571428571,
-      "f1": 0.7725321888412017,
+      "f1": 0.7758620689655172,
       "confusion_matrix": {
-        "tn": 580,
-        "fp": 38,
+        "tn": 581,
+        "fp": 37,
         "fn": 15,
         "tp": 90
       }
@@ -266,8 +282,8 @@
         "positives": 49,
         "roc_auc": 0.9426547478495532,
         "pr_auc": 0.8448150013741851,
-        "brier_score": 0.07748945599521281,
-        "threshold": 0.57,
+        "brier_score": 0.05882804557907686,
+        "threshold": 0.245,
         "precision": 0.6785714285714286,
         "recall": 0.7755102040816326,
         "f1": 0.7238095238095238,
@@ -283,8 +299,8 @@
         "positives": 26,
         "roc_auc": 0.9418386491557225,
         "pr_auc": 0.9073275785640528,
-        "brier_score": 0.0449124381973095,
-        "threshold": 0.57,
+        "brier_score": 0.030764747401593656,
+        "threshold": 0.245,
         "precision": 0.8846153846153846,
         "recall": 0.8846153846153846,
         "f1": 0.8846153846153846,
@@ -300,8 +316,8 @@
         "positives": 16,
         "roc_auc": 0.9566582914572864,
         "pr_auc": 0.745362821245739,
-        "brier_score": 0.05625633518726628,
-        "threshold": 0.57,
+        "brier_score": 0.027968949535018033,
+        "threshold": 0.245,
         "precision": 0.5769230769230769,
         "recall": 0.9375,
         "f1": 0.7142857142857143,
@@ -317,14 +333,14 @@
         "positives": 14,
         "roc_auc": 0.9867724867724867,
         "pr_auc": 0.9563632639290534,
-        "brier_score": 0.08087667088957541,
-        "threshold": 0.57,
-        "precision": 0.7,
+        "brier_score": 0.04139752745713343,
+        "threshold": 0.245,
+        "precision": 0.7368421052631579,
         "recall": 1.0,
-        "f1": 0.8235294117647058,
+        "f1": 0.8484848484848485,
         "confusion_matrix": {
-          "tn": 48,
-          "fp": 6,
+          "tn": 49,
+          "fp": 5,
           "fn": 0,
           "tp": 14
         }
@@ -335,13 +351,13 @@
         "rows": 723,
         "successes": 105
       },
-      "train": {
-        "rows": 3491,
-        "successes": 458
-      },
       "validation": {
         "rows": 850,
         "successes": 97
+      },
+      "train": {
+        "rows": 3491,
+        "successes": 458
       }
     }
   }

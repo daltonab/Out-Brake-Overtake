@@ -8,15 +8,15 @@ FIA, team, and driver names and marks belong to their respective owners.
 
 ## Project status
 
-- The Predictive Model UI now evaluates the exported Max Verstappen baseline
+- The Predictive Model UI evaluates an exported, all-driver pooled
   logistic-regression artifact in the browser; it is no longer a placeholder
-  formula.
-- The production direction is an all-driver pooled model. The Max-only artifact
-  remains an exploratory baseline until the pooled model is trained and exported.
+  formula or a driver-specific model.
+- The published artifact is Platt-calibrated using its validation split. It is
+  an educational decision-support baseline, not an autonomous race-strategy or
+  driving system.
 - The UI includes Home, Predictive Model, Overtakes, and About Our Model tabs.
-- This repository is initialized on `main`. The application source and local
-  training data will be migrated deliberately; raw data and local model binaries
-  are not intended for publication.
+- Raw data, local model binaries, and generated reports remain local; only the
+  reviewed browser model export is published.
 
 ## Stack
 
@@ -65,10 +65,10 @@ PYTHONPATH=ml/src .venv/bin/python -m unittest discover -s ml/src
 ```
 
 `npm test` currently fails because web tests have not been added. Python
-dependency ranges are not yet an exact reproducible lockfile. The current
-browser prediction uses the exported Max Verstappen baseline; it is not the
-future all-driver pooled model. See [review findings](docs/CODE_REVIEW.md)
-before publishing.
+dependency ranges are not yet an exact reproducible lockfile. See the
+[model-validation record](docs/MODEL_VALIDATION.md) for the evaluation protocol,
+results, known limitations, and promotion decisions. See
+[review findings](docs/CODE_REVIEW.md) before publishing.
 
 ## Project structure
 

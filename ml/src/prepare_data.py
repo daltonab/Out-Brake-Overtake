@@ -93,6 +93,71 @@ def throttle_lift_before(items, brake_at, lookback=8):
     return candidates[-1] if candidates else None
 
 
+def rate_before(items, at, field, lookback=1.5):
+    """Estimate a past-only telemetry rate using the widest valid lookback."""
+    samples = [(when, row[field]) for when, row in items
+               if at - lookback <= when <= at and isinstance(row.get(field), (int, float))]
+    if len(samples) < 2 or samples[-1][0] - samples[0][0] < .25:
+        return None
+    return (samples[-1][1] - samples[0][1]) / (samples[-1][0] - samples[0][0])
+
+
+def mean_before(items, at, field, lookback=2):
+    """Return a past-only telemetry mean, never reading after brake onset."""
+    values = [row[field] for when, row in items
+              if at - lookback <= when <= at and isinstance(row.get(field), (int, float))]
+    return sum(values) / len(values) if values else None
+
+
+def location_at_or_before(items, at, max_lag=.75):
+    """Use only an observed location at or before the supplied timestamp."""
+    index = bisect_right([when for when, _ in items], at) - 1
+    if index < 0 or at - items[index][0] > max_lag:
+        return None
+    return items[index]
+
+
+def heading_change_before(items, at):
+    """Measure local approach curvature from three past-only location samples."""
+    points = [location_at_or_before(items, at - offset) for offset in (1.5, .75, 0)]
+    if not all(points) or not (points[0][0] < points[1][0] < points[2][0]):
+        return None
+    vectors = []
+    for (_, first), (_, second) in zip(points, points[1:]):
+        dx, dy = second['x'] - first['x'], second['y'] - first['y']
+        length = math.hypot(dx, dy)
+        if length <= 0:
+            return None
+        vectors.append((dx / length, dy / length))
+    dot = max(-1, min(1, sum(a * b for a, b in zip(*vectors))))
+    return math.degrees(math.acos(dot))
+
+
+def prior_lap_value(items, at, field):
+    """Return a preceding completed-lap value, excluding the current lap."""
+    index = bisect_right([when for when, _ in items], at) - 1
+    if index <= 0:
+        return None
+    value = items[index - 1][1].get(field)
+    return value if isinstance(value, (int, float)) else None
+
+
+def prior_lap_duration(items, at):
+    """Return the preceding completed lap duration, excluding the current lap."""
+    duration = prior_lap_value(items, at, 'lap_duration')
+    return duration if duration is not None and duration > 0 else None
+
+
+def nearby_traffic_count(intervals_by_driver, at):
+    """Count drivers with a recorded sub-second gap at the attack time."""
+    count = 0
+    for items in intervals_by_driver.values():
+        sample = nearest(items, at, 4)
+        if sample and isinstance(sample[1].get('interval'), (int, float)) and 0 < sample[1]['interval'] <= 1:
+            count += 1
+    return count
+
+
 def coordinate_scale(location_by_driver, car_by_driver):
     """Estimate OpenF1 coordinate units per metre from speed and sample movement."""
     ratios = []
@@ -307,6 +372,17 @@ def build_session(session_dir, driver, reader=read_rows, context=None):
         attacker_location = nearest(location_by_driver.get(driver, []), at, 2)
         attacker_lift = throttle_lift_before(car_by_driver.get(driver, []), at)
         defender_lift = throttle_lift_before(car_by_driver.get(defender, []), defender_brake[0])
+        attacker_acceleration = rate_before(car_by_driver.get(driver, []), at, 'speed')
+        defender_acceleration = rate_before(car_by_driver.get(defender, []), at, 'speed')
+        attacker_throttle = mean_before(car_by_driver.get(driver, []), at, 'throttle')
+        defender_throttle = mean_before(car_by_driver.get(defender, []), at, 'throttle')
+        attacker_heading_change = heading_change_before(location_by_driver.get(driver, []), at)
+        attacker_prior_lap = prior_lap_duration(laps_by_driver.get(driver, []), at)
+        defender_prior_lap = prior_lap_duration(laps_by_driver.get(defender, []), at)
+        attacker_prior_speed_trap = prior_lap_value(laps_by_driver.get(driver, []), at, 'st_speed')
+        defender_prior_speed_trap = prior_lap_value(laps_by_driver.get(defender, []), at, 'st_speed')
+        attacker_compound = (attacker_stint or {}).get('compound')
+        defender_compound = (defender_stint or {}).get('compound')
         def preceding_off(items, on):
             index = bisect_right([t for t, _ in items], on) - 1
             return items[index - 1][0] if index > 0 else on
@@ -353,6 +429,31 @@ def build_session(session_dir, driver, reader=read_rows, context=None):
             'brake_distance_delta_m': brake_distance,
             'throttle_lift_delta_seconds': (attacker_lift - defender_lift)
                                            if attacker_lift is not None and defender_lift is not None else None,
+            'attacker_pre_brake_acceleration_kph_per_s': attacker_acceleration,
+            'relative_pre_brake_acceleration_kph_per_s': (
+                attacker_acceleration - defender_acceleration
+                if attacker_acceleration is not None and defender_acceleration is not None else None),
+            'attacker_pre_brake_throttle_pct': attacker_throttle,
+            'throttle_commitment_delta_pct': (
+                attacker_throttle - defender_throttle
+                if attacker_throttle is not None and defender_throttle is not None else None),
+            'approach_heading_change_degrees': attacker_heading_change,
+            'nearby_traffic_count': nearby_traffic_count(context['intervals_by_driver'], at),
+            'prior_lap_duration_delta_seconds': (
+                attacker_prior_lap - defender_prior_lap
+                if attacker_prior_lap is not None and defender_prior_lap is not None else None),
+            'attacker_engine_rpm': attacker_car.get('rpm'),
+            'engine_rpm_delta': (attacker_car.get('rpm') - defender_car[1].get('rpm')
+                                 if attacker_car.get('rpm') is not None
+                                 and defender_car[1].get('rpm') is not None else None),
+            'attacker_gear': attacker_car.get('n_gear'),
+            'gear_delta': (attacker_car.get('n_gear') - defender_car[1].get('n_gear')
+                           if attacker_car.get('n_gear') is not None
+                           and defender_car[1].get('n_gear') is not None else None),
+            'attacker_race_position': attacker_position.get('position'),
+            'prior_lap_speed_trap_delta_kph': (
+                attacker_prior_speed_trap - defender_prior_speed_trap
+                if attacker_prior_speed_trap is not None and defender_prior_speed_trap is not None else None),
             'attacker_tyre_age_laps': ((attacker_stint or {}).get('tyre_age_at_start') or 0)
                                       + (lap - attacker_stint['lap_start'] if attacker_stint and lap else 0),
             'defender_tyre_age_laps': ((defender_stint or {}).get('tyre_age_at_start') or 0)
@@ -361,8 +462,10 @@ def build_session(session_dir, driver, reader=read_rows, context=None):
             'rainfall': weather_row.get('rainfall'),
             'track_temperature_c': weather_row.get('track_temperature'),
             'corner_cluster': corner,
-            'attacker_compound': (attacker_stint or {}).get('compound'),
-            'defender_compound': (defender_stint or {}).get('compound'),
+            'attacker_compound': attacker_compound,
+            'defender_compound': defender_compound,
+            'tyre_matchup': (f'{attacker_compound}|{defender_compound}'
+                             if attacker_compound and defender_compound else None),
             'attacker_drs_active': bool((attacker_car.get('drs') or 0) >= 10),
             'overtake_success': int(success),
             'dataset_split': None, 'quality_flags': quality_flags,

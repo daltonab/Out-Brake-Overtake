@@ -31,13 +31,14 @@ def main():
     scope = artifact.get('model_scope') or ('driver_specific' if args.driver else 'pooled')
     model_name = artifact.get('model_name') or args.model_name
     export = {
-        'format_version': 1, 'model_type': 'logistic_regression',
+        'format_version': 2, 'model_type': 'logistic_regression',
         'model_scope': scope, 'model_name': model_name,
         # Retained for the existing UI and old driver-specific exports. Pooled
         # exports deliberately contain null rather than a misleading driver.
         'driver': args.driver,
         'exported_at': datetime.now(timezone.utc).isoformat(),
         'decision_threshold': artifact['threshold'],
+        'calibration': artifact.get('calibration'),
         'numeric': {'features': artifact['features']['numeric'],
                     'impute_medians': [scalar(v) for v in numeric_imputer.statistics_],
                     'means': [scalar(v) for v in scaler.mean_],
