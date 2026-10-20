@@ -21,7 +21,7 @@ FORMAT_VERSION = 1
 
 
 def event_rows(session_dir, metadata, year):
-    """Export only accepted successful pooled attempts, never raw pass records."""
+    """Export only accepted successful all-driver attempts, never raw pass records."""
     accepted, _ = accepted_session_rows(session_dir, metadata, year)
     successes = [row for row in accepted if row['overtake_success']]
     if not successes:

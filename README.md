@@ -8,9 +8,8 @@ FIA, team, and driver names and marks belong to their respective owners.
 
 ## Project status
 
-- The Predictive Model UI evaluates an exported, all-driver pooled
-  logistic-regression artifact in the browser; it is no longer a placeholder
-  formula or a driver-specific model.
+- The Predictive Model UI evaluates the exported all-driver logistic-regression
+  artifact in the browser; it is no longer a placeholder formula.
 - The published artifact is Platt-calibrated using its validation split. It is
   an educational decision-support baseline, not an autonomous race-strategy or
   driving system.
@@ -78,7 +77,7 @@ results, known limitations, and promotion decisions. See
 - `src/pages/` — application pages
 - `scripts/` — acquisition scripts, tests, and [documentation](scripts/README.md)
 - `ml/src/` — local preprocessing, audit, training, export, and tests
-- `ml/*.md` — [modeling](ml/README.md) and [pooled preprocessing](ml/POOLED_PREPROCESSING.md)
+- `ml/*.md` — [modeling](ml/README.md) and [all-driver preprocessing](ml/POOLED_PREPROCESSING.md)
 - `public/` — static assets and reviewed browser model JSON exports
 - `docs/` — project review and release guidance
 - `data/` — downloaded and processed data; local only

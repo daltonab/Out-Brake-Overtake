@@ -1,4 +1,4 @@
-"""Download model-ready OpenF1 source data once per race for a pooled model."""
+"""Download model-ready OpenF1 source data once per race for the all-driver model."""
 
 import argparse
 from bisect import bisect_right
@@ -307,7 +307,7 @@ def main():
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
-        parser.error('Another pooled downloader is using this output directory.')
+        parser.error('Another all-driver downloader is using this output directory.')
 
     for year in range(args.start_year, args.end_year + 1):
         client = Downloader(args.output / str(year))

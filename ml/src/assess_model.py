@@ -1,4 +1,4 @@
-"""Audit pooled split integrity, calibration, and shared-gate coverage."""
+"""Audit split integrity, calibration, and shared-gate coverage."""
 
 import argparse
 import hashlib
@@ -83,7 +83,7 @@ def main():
 
     report = {
         'dataset_sha256': input_sha256, 'model_sha256': digest(args.model),
-        'model_name': artifact.get('model_name'), 'model_scope': artifact.get('model_scope'),
+        'model_name': artifact.get('model_name'),
         'integrity': {'passed': True, 'unique_events': int(frame['event_id'].nunique()),
                       'rows': int(len(frame)), 'meeting_split_leakage': leaking_meetings,
                       'split_counts': split_counts,

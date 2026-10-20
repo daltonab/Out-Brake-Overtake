@@ -27,7 +27,6 @@ CATEGORICAL_FEATURES = (
     'corner_cluster',
     'attacker_compound',
     'defender_compound',
-    'attacker_drs_active',
 )
 
 TARGET = 'overtake_success'

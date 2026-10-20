@@ -1,4 +1,4 @@
-"""Tune, evaluate, and save the pooled out-braking logistic-regression model."""
+"""Tune, evaluate, and save the out-braking logistic-regression model."""
 import argparse, hashlib, io, json
 from pathlib import Path
 import joblib
@@ -17,7 +17,7 @@ MODEL_NUMERIC = ('gap_seconds', 'closing_rate_seconds_per_second', 'attacker_spe
                  'speed_delta_kph', 'brake_onset_delta_seconds', 'brake_distance_delta_m',
                  'throttle_lift_delta_seconds', 'attacker_tyre_age_laps',
                  'defender_tyre_age_laps', 'lap_fraction', 'rainfall', 'track_temperature_c')
-MODEL_CATEGORICAL = ('attacker_compound', 'defender_compound', 'attacker_drs_active')
+MODEL_CATEGORICAL = ('attacker_compound', 'defender_compound')
 FEATURES = (*MODEL_NUMERIC, *MODEL_CATEGORICAL)
 
 
@@ -96,7 +96,7 @@ def main():
     parser.add_argument('--input', required=True, type=Path)
     parser.add_argument('--model-output', required=True, type=Path)
     parser.add_argument('--report-output', required=True, type=Path)
-    parser.add_argument('--model-name', default='pooled-out-braking')
+    parser.add_argument('--model-name', default='out-braking')
     args = parser.parse_args()
     input_bytes = args.input.read_bytes()
     input_sha256 = hashlib.sha256(input_bytes).hexdigest()
@@ -133,7 +133,7 @@ def main():
     test_raw_probability = model.predict_proba(test[list(FEATURES)])[:, 1]
     test_probability = calibrated_probability(test_raw_probability, calibration)
     report = {'model': 'class-balanced logistic regression', 'input_sha256': input_sha256,
-              'model_scope': 'pooled', 'model_name': args.model_name,
+              'model_name': args.model_name,
               'features': {'numeric': list(MODEL_NUMERIC),
                            'categorical': list(MODEL_CATEGORICAL)},
               'selected_regularization_c': selected['c'], 'tuning': tuning,
@@ -149,7 +149,7 @@ def main():
                                for name, subset in subsets.items()}}
     artifact = {'pipeline': model, 'threshold': threshold, 'calibration': calibration,
                 'input_sha256': input_sha256,
-                'model_scope': 'pooled', 'model_name': args.model_name,
+                'model_name': args.model_name,
                 'features': report['features'], 'report': report}
     args.model_output.parent.mkdir(parents=True, exist_ok=True)
     args.report_output.parent.mkdir(parents=True, exist_ok=True)

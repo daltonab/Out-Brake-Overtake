@@ -21,6 +21,15 @@ INTERVAL_CONTEXT_GAP = 1.0
 MIN_ATTACK_SPEED_DELTA_KPH = 20
 
 
+def retained_rows(endpoint, rows):
+    """Discard telemetry fields that are outside the reproducible model contract."""
+    if endpoint != 'car_data':
+        return rows
+    # OpenF1 supports filtering records but not projecting car-data columns.
+    # Keep only fields needed by the current preprocessing/model workflow.
+    return [{key: value for key, value in row.items() if key != 'drs'} for row in rows]
+
+
 def utc(value):
     return datetime.fromisoformat(value.replace('Z', '+00:00')).astimezone(timezone.utc)
 
@@ -260,6 +269,7 @@ class Downloader:
                     rows = json.load(response)
                 if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
                     raise ValueError('Unexpected API response; expected a list of records')
+                rows = retained_rows(endpoint, rows)
                 table = parquet_table(self.pa, rows)
                 temp = dest.with_suffix('.partial')
                 self.pq.write_table(table, temp, compression='zstd')

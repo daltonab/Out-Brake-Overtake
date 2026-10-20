@@ -1,10 +1,10 @@
-import pooledOutBrakingModel from '../../../public/models/pooled-out-braking.json'
+import outBrakingModel from '../../../public/models/out-braking.json'
 
 export type ScenarioValues = Record<string, number | string | boolean | null>
 
-type BrowserModel = typeof pooledOutBrakingModel
+type BrowserModel = typeof outBrakingModel
 
-const model: BrowserModel = pooledOutBrakingModel
+const model: BrowserModel = outBrakingModel
 
 function categorySuffix(value: string | boolean | null) {
   if (value === null) return 'None'
@@ -42,4 +42,4 @@ export function predictOvertake(values: ScenarioValues) {
   return { probability, isLikely: probability >= model.decision_threshold }
 }
 
-export { model as pooledOutBrakingModel }
+export { model as outBrakingModel }

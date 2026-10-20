@@ -15,8 +15,7 @@ current year, run:
 .venv/bin/python scripts/download_driver_history.py --driver 1
 ```
 
-If a driver changes numbers, add a year-specific override. For Max Verstappen,
-who uses 3 in 2026:
+If a driver changes numbers, add a year-specific override. For example:
 
 ```sh
 .venv/bin/python scripts/download_driver_history.py --driver 1 --driver-year 2026:3
@@ -63,7 +62,7 @@ Testing, practice, qualifying, sprints and future/live races are excluded.
 | Pit stops | Selected driver and identified rivals | Exclude pit-related position changes |
 | Race control | Full selected race | Exclude yellow/red flags, safety cars, and VSC periods |
 | Weather | Full selected race | Rainfall and track-condition features |
-| Car data | Selected driver and relevant rival, only around candidate windows | Brake, throttle, speed, gear, RPM, and DRS features |
+| Car data | Selected driver and relevant rival, only around candidate windows | Brake, throttle, speed, gear, and RPM features |
 | Location | Selected driver and relevant rival, only after car telemetry confirms a credible attack or the Overtakes API confirms a pass | Physical braking position, distance, and corner clustering |
 | Candidate windows | Derived locally | Merged time ranges eligible for telemetry retrieval |
 | Same-lap overtakes | Derived locally | Removes passes involving lapped traffic |
@@ -90,7 +89,7 @@ output directory is allowed; separate directories still share OpenF1 limits.
 Each driver/year run has its own folder:
 `data/openf1/<name>/<year>/<session>/<endpoint>/<request-hash>.parquet`.
 For example, driver 1 in 2025 is stored under
-`data/openf1/max-verstappen/2025/`. The CLI and API data continue
+`data/openf1/<driver-id>/2025/`. The CLI and API data continue
 to use driver numbers. `--output` changes the base directory while preserving
 the driver/year hierarchy. Legacy `<name>-<year>` folders are automatically
 moved into the new hierarchy when first encountered. Reusable name-resolution responses are kept under
@@ -122,13 +121,15 @@ remaining boundary samples by session, driver and timestamp before training.
 Older downloads may contain wider or rejected windows. This does not change the
 modeling definition because preprocessing reapplies the final filters; it only
 means those older folders contain extra raw telemetry.
-All returned fields are preserved;
-schemas may vary between files/years, so unify schemas when reading batches.
+The OpenF1 API does not support requesting individual car-data columns. The
+downloader discards DRS before persisting car telemetry because it is not a
+model input and is unavailable after 2025. Schemas may vary between files/years,
+so unify schemas when reading batches.
 Timestamps remain source ISO strings. Brake is binary, not pressure.
 
 Source: https://openf1.org/docs/
 
-## Pooled race-centric acquisition
+## All-driver race-centric acquisition
 
 Use `download_openf1_pooled.py` for the all-driver model. It processes every
 currently completed Grand Prix and Sprint from 2023 through the selected end year and
@@ -139,7 +140,7 @@ PYTHONPATH=scripts .venv/bin/python scripts/download_openf1_pooled.py \
   --start-year 2023 --end-year 2026
 ```
 
-The pooled downloader discovers the session roster, so driver-number changes,
+The all-driver downloader discovers the session roster, so driver-number changes,
 substitutions, arrivals, and departures require no special configuration.
 Race-wide positions, overtakes, intervals, laps, stints, pits, race control,
 and weather are requested once. Candidate windows are built for every adjacent
@@ -154,12 +155,12 @@ interrupted race resumes without repeating completed calls. HTTP 429 handling,
 server-directed cooldowns, serial three-second request spacing, bounded network
 retries, optional-endpoint 404 handling, and atomic writes are inherited from
 the driver downloader. If a transient failure survives those retries, the
-pooled runner waits five minutes and continues indefinitely. Permanent errors
+all-driver runner waits five minutes and continues indefinitely. Permanent errors
 still stop rather than silently creating an incomplete dataset. The active
 2026 season includes only races ending at least 30 minutes before the run; rerun
 later to append newly completed races.
 
-### Acquisition gates and final model labels (pooled version 2)
+### Acquisition gates and final model labels (version 2)
 
 | Decision | Where applied |
 |---|---|
@@ -175,7 +176,7 @@ later to append newly completed races.
 No minimum car speed is imposed. Location requests cover individual qualifying
 events with 15 seconds of context on each side, merging overlaps per driver.
 Rejected first-stage car samples remain as cached source data. Candidate windows
-are not final training rows: pooled preprocessing must apply the remaining gates
+are not final training rows: all-driver preprocessing must apply the remaining gates
 and exclusions at each event, including within padded context.
 
 Version 2 writes completion markers atomically and validates recorded Parquet
@@ -188,6 +189,6 @@ are never interpreted as valid empty responses for these endpoints.
 Weather/pit and bounded telemetry 404s still represent recorded empty responses;
 completion means requests finished, not that every candidate has full telemetry.
 Permanent HTTP errors (e.g. 401/403) stop with the error; transient errors retry.
-A lock prevents two pooled runs writing the same output. Three-second pacing
+A lock prevents two all-driver runs writing the same output. Three-second pacing
 and 429 backoff remain; independent downloaders/UI traffic are not coordinated.
 Version 1 markers are re-evaluated and matching request caches are reused.

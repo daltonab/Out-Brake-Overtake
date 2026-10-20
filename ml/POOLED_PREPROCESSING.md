@@ -54,7 +54,7 @@ excluded. The shared implementation also emits `brake_distance_lower_bound_m`.
    not a missing model feature. Unknown or inaccurate source flags cannot be
    reconstructed exactly. Numbered-lap equality is the existing conservative
    same-lap heuristic, including its start/finish-line limitation.
-4. Normalize roster full names into stable IDs such as `max-verstappen`.
+4. Normalize roster full names into stable IDs such as `driver-firstname-lastname`.
    Driver numbers are retained as source identifiers; name IDs are used across
    seasons. Fail on absent names or within-session identity collisions. Source
    spelling changes may require a future explicit alias mapping.
@@ -76,8 +76,8 @@ excluded. The shared implementation also emits `brake_distance_lower_bound_m`.
 Default outputs: `data/processed/pooled/attempts.parquet` and
 `ml/reports/pooled-preprocessing.json`. Rerunning rebuilds from all completed
 sessions. Feature imputation/scaling must still be fitted on training data only.
-The pooled trainer deliberately does not use driver identity: the initial model
-is intended to generalize across the field. Sprint status is retained as audit
+The model deliberately does not use driver identity so it can generalize across
+the field. Sprint status is retained as audit
 metadata; it is not yet a prediction feature.
 
 The telemetry reviews linked in [PREPROCESSING.md](PREPROCESSING.md) explain the

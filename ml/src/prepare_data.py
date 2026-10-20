@@ -466,7 +466,6 @@ def build_session(session_dir, driver, reader=read_rows, context=None):
             'defender_compound': defender_compound,
             'tyre_matchup': (f'{attacker_compound}|{defender_compound}'
                              if attacker_compound and defender_compound else None),
-            'attacker_drs_active': bool((attacker_car.get('drs') or 0) >= 10),
             'overtake_success': int(success),
             'dataset_split': None, 'quality_flags': quality_flags,
         })

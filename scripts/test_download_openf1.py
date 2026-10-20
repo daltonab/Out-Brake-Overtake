@@ -9,7 +9,7 @@ from urllib.parse import parse_qs, urlparse
 from datetime import datetime, timezone
 
 from download_openf1 import (Downloader, completed_races, has_attack_telemetry,
-                             parquet_table, same_lap_overtakes)
+                             parquet_table, retained_rows, same_lap_overtakes)
 
 
 class DownloaderTests(unittest.TestCase):
@@ -50,6 +50,11 @@ class DownloaderTests(unittest.TestCase):
         import pyarrow as pa
         table = parquet_table(pa, [{'gap_to_leader': 2.5}, {'gap_to_leader': '+4 LAPS'}])
         self.assertEqual(table.to_pylist(), [{'gap_to_leader': '2.5'}, {'gap_to_leader': '+4 LAPS'}])
+
+    def test_car_data_drops_drs_before_persistence(self):
+        rows = [{'driver_number': 16, 'speed': 300, 'drs': 12}]
+        self.assertEqual(retained_rows('car_data', rows), [{'driver_number': 16, 'speed': 300}])
+        self.assertEqual(retained_rows('laps', rows), rows)
 
     def test_only_completed_grand_prix_races(self):
         template = {'date_end': '2025-01-01T00:00:00+00:00'}

@@ -11,7 +11,6 @@ export type CarData = OpenF1Record & {
   brake: number
   rpm: number
   n_gear: number
-  drs: number
 }
 
 export type Overtake = OpenF1Record & {

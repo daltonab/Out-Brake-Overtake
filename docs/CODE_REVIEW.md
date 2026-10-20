@@ -8,19 +8,11 @@ legal clearance audit.
 
 ## Open findings, ordered by impact
 
-### P1: Prediction UI presents a placeholder as a trained probability
-
-`src/pages/ModelPage.tsx` computes `likelihood` using a hard-coded arithmetic
-formula and ignores the season/driver/tyre/DRS selections. It never loads
-`public/models/max-verstappen.json`. Label or disable the prototype result until
-real inference, feature validation, applicability limits, and export parity
-tests are implemented. It is currently reachable from the Predictive Model tab.
-
 ### P1: Outcome-dependent sampling can inflate evaluation
 
 `ml/src/prepare_data.py` applies the 0.5s/20km/h/closing-distance gate only to
 failures. Successes can occur outside that support. Thus speed/gap can identify
-the dataset selection rule instead of successful attacks. The pooled downloader
+the dataset selection rule instead of successful attacks. The all-driver downloader
 also deliberately preserves positives regardless of those gates. Keep the agreed
 rules documented, but before claiming general probabilities evaluate a common
 eligible population and sensitivity to thresholds. Balanced class weights also
@@ -56,7 +48,7 @@ defined prediction timestamp and require opponent continuity. Nearest speed and
 location also permit future samples, and coordinate scaling uses the full race;
 these choices need an explicit retrospective-vs-live feature definition.
 
-### P2: Repeated timeline work dominates pooled preprocessing (partly resolved)
+### P2: Repeated timeline work dominates all-driver preprocessing (partly resolved)
 
 `prepare_pooled.py` caches raw reads, but `build_session` rebuilds all drivers'
 timelines, brake onsets and coordinate scale for every driver. `nearest` and
@@ -64,7 +56,7 @@ timelines, brake onsets and coordinate scale for every driver. `nearest` and
 scans whole timelines. Compute shared session state once, cache timestamp arrays,
 and use bounded binary-search slices. Profile before replacing readable code.
 Follow-up: shared timelines, all-driver brake detection and coordinate scaling
-now run once per session using `prepare_session`; the pooled loop reuses its
+now run once per session using `prepare_session`; the all-driver loop reuses its
 read-only context. Timestamp-list lookup optimizations remain a separate option.
 
 ### P2: Completion is not proof of feature coverage
@@ -79,12 +71,12 @@ valid data before preprocessing can recover it. Leave the active run untouched.
 
 ### P2: Training needs stronger split validation
 
-`train_model.py` now defaults to a pooled model and intentionally excludes
+`train_model.py` intentionally excludes
 driver identity and session type. It validates split labels and class presence
 but does not assert weekend disjointness or unique event IDs. Add these
 assertions, dataset hashes, preprocessing version, package versions, calibration
 assessment and export-vs-sklearn prediction tests before training a publishable
-pooled model. Do not tune against the existing test set repeatedly. Name-based
+model. Do not tune against the existing test set repeatedly. Name-based
 IDs need explicit alias handling if upstream spelling changes. The current
 shuffled weekend split is appropriate for the agreed goal.
 

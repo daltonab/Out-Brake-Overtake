@@ -1,4 +1,4 @@
-"""Build pooled attempts from completed race/Sprint downloads; see POOLED_PREPROCESSING.md."""
+"""Build all-driver attempts from completed race/Sprint downloads; see POOLED_PREPROCESSING.md."""
 import argparse
 from collections import Counter, defaultdict
 from datetime import datetime, timezone

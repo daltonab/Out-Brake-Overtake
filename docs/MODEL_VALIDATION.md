@@ -7,11 +7,11 @@ strategy or driving behaviour.
 
 ## Published model
 
-The browser uses the `pooled-out-braking` artifact: a class-balanced logistic
+The browser uses the `out-braking` artifact: a class-balanced logistic
 regression trained on all drivers in completed 2023--2026 Race and Sprint
-sessions. Its 15 pre-attempt inputs are 12 numeric signals (gap, closing rate,
-speed, braking, tyre-age, race-progress, and weather measures) and three
-categorical signals (both tyre compounds and attacker DRS state). Driver
+sessions. Its 14 pre-attempt inputs are 12 numeric signals (gap, closing rate,
+speed, braking, tyre-age, race-progress, and weather measures) and two
+categorical signals (the attacker and defender tyre compounds). Driver
 identity is intentionally excluded so the baseline can generalize across the
 field.
 
@@ -21,11 +21,17 @@ PR-AUC, and chooses a decision threshold by validation F1. Because
 class-balanced training distorts raw probabilities, a Platt scaler is fitted
 only to validation predictions and applied to the exported browser model.
 
-On the original grouped holdout split, calibration reduced Brier score from
-0.0648 to 0.0422 and changed F1 from 0.7725 to 0.7759. The published artifact
-therefore reports calibrated probabilities and its calibrated threshold. These
-figures describe the frozen artifact and are not a guarantee of future race
-performance.
+DRS is intentionally excluded. It was removed from Formula 1 after 2025, so
+retaining it would create an inconsistent pre-/post-2026 input definition. In
+2024 and 2025 historical drop-column tests, removing DRS changed mean PR-AUC by
+only -0.00003, Brier score by +0.00001, and improved mean F1 by 0.00125. The
+small cost is not practically meaningful and is outweighed by a stable feature
+contract for future data.
+
+On the regenerated grouped holdout split, calibration reduced Brier score from
+0.0648 to 0.0423; calibrated F1 is 0.7792. The published artifact therefore
+reports calibrated probabilities and its calibrated threshold. These figures
+describe the frozen artifact and are not a guarantee of future race performance.
 
 ## Generalization protocol
 
@@ -41,14 +47,14 @@ successes:
 | Metric | Result |
 | --- | ---: |
 | ROC-AUC | 0.9296 |
-| PR-AUC | 0.7718 |
-| Brier score | 0.0767 |
+| PR-AUC | 0.7715 |
+| Brier score | 0.0766 |
 | Precision | 0.7404 |
 | Recall | 0.6754 |
 | F1 | 0.7064 |
 
-The 26-circuit leave-one-circuit-out macro averages were ROC-AUC 0.9509,
-PR-AUC 0.8301, Brier 0.0440, and F1 0.7675. Circuit macro averages and the
+The 26-circuit leave-one-circuit-out macro averages were ROC-AUC 0.9511,
+PR-AUC 0.8323, Brier 0.0438, and F1 0.7654. Circuit macro averages and the
 temporal result answer different questions; neither should be interpreted as a
 claim of autonomous-strategy readiness.
 
@@ -89,7 +95,7 @@ monitoring, uncertainty/defer rules, a causal decision layer, and human review.
 
 ## Reproducing the checks
 
-The commands for rebuilding the pooled dataset, training/exporting the browser
+The commands for rebuilding the all-driver dataset, training/exporting the browser
 artifact, assessing calibration, and running each benchmark are in
 [`ml/README.md`](../ml/README.md). Raw OpenF1-derived records, Parquet files,
 binary model files, and generated JSON reports are deliberately ignored by Git;

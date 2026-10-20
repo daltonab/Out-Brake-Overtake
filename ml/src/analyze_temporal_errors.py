@@ -1,4 +1,4 @@
-"""Explain 2026 errors from the strict temporal pooled-model benchmark."""
+"""Explain 2026 errors from the strict temporal model benchmark."""
 import argparse
 import json
 from pathlib import Path
@@ -32,7 +32,6 @@ def segment_summary(frame, field):
 def add_segments(frame, circuit_types):
     frame = frame.copy()
     frame['circuit_type'] = frame['meeting_key'].map(circuit_types).fillna('Unknown')
-    frame['drs_state'] = np.where(frame['attacker_drs_active'], 'DRS active', 'DRS inactive')
     frame['track_condition'] = np.where(frame['rainfall'].fillna(0) > 0, 'Wet', 'Dry')
     frame['tyre_age_delta'] = frame['attacker_tyre_age_laps'] - frame['defender_tyre_age_laps']
     frame['tyre_age_delta_band'] = pd.cut(frame['tyre_age_delta'],
@@ -76,7 +75,7 @@ def main():
             circuit_types[row['meeting_key']] = row.get('circuit_type')
     test = add_segments(test, circuit_types)
     segments = {field: segment_summary(test, field) for field in (
-        'circuit_type', 'drs_state', 'track_condition', 'tyre_age_delta_band',
+        'circuit_type', 'track_condition', 'tyre_age_delta_band',
         'gap_band', 'speed_delta_band', 'brake_distance_band')}
     overview = metrics(test[TARGET].to_numpy(), test['probability'].to_numpy(), threshold)
     report = {'protocol': {'train_years': [2023, 2024], 'validation_year': 2025,

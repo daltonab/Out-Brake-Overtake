@@ -1,4 +1,4 @@
-"""Benchmark calibrated pooled-model generalization by time and unseen circuit."""
+"""Benchmark calibrated model generalization by time and unseen circuit."""
 import argparse
 import json
 from pathlib import Path

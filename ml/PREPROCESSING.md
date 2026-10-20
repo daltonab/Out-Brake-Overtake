@@ -80,8 +80,8 @@ training-ready; inspect retained and rejected examples before tuning thresholds.
    between location samples with speed-integrated metres. Use the interpolated
    onset intervals and shared approach direction described above; positive
    distance means the attacker braked farther along the local approach.
-9. Derive tyre age and compound from the active stint, DRS from car telemetry,
-   weather from the nearest sample, corner clusters from approximate coordinates,
+9. Derive tyre age and compound from the active stint, weather from the nearest
+   sample, corner clusters from approximate coordinates,
    and race progress as current lap divided by the maximum completed race lap.
 10. Record quality flags for missing braking distance, throttle lift, or weather.
    The audit reports these before a final feature-completeness policy is chosen.
@@ -100,11 +100,5 @@ the binary outcome, quality flags, and a deterministic race-level split.
 - [Telemetry examples for successes and failures](reports/visualizations/overtake-telemetry-review.html)
 - [Strong versus weak failed-attempt signatures](reports/visualizations/failed-attempt-review.html)
 
-For a driver whose number changes, preprocess the complete history together so
-the race splits remain globally chronological:
-
-```sh
-PYTHONPATH=ml/src .venv/bin/python ml/src/prepare_data.py \
-  --input data/openf1/max-verstappen --driver 1 --driver-year 2026:3 \
-  --output data/processed/max-verstappen/all-years.parquet
-```
+For a driver whose number changes, use the all-driver preparation workflow;
+the session roster resolves season-specific numbers automatically.
